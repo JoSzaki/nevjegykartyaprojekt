@@ -3,727 +3,899 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PremiumCard – Névjegykártyák szakembereknek</title>
+  <title>Névjegykártya Szerkesztő</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --gold: #C9A84C;
-      --gold-light: #E8C96B;
-      --dark: #0F0F0F;
-      --dark2: #1A1A1A;
-      --dark3: #242424;
-      --text: #E8E8E8;
-      --text-muted: #999;
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: rgba(255,255,255,0.08);
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --text: #e2e8f0;
+      --text-muted: #7c859e;
+      --radius: 10px;
     }
-
-    html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: var(--dark);
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
       color: var(--text);
-      line-height: 1.6;
-    }
-
-    /* NAV */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background: rgba(15,15,15,0.92);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid rgba(201,168,76,0.2);
-    }
-    .logo {
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: var(--gold);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 2rem;
-    }
-    nav ul a {
-      text-decoration: none;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      transition: color 0.2s;
-    }
-    nav ul a:hover { color: var(--gold); }
-    .nav-cta {
-      background: var(--gold);
-      color: var(--dark) !important;
-      padding: 0.5rem 1.2rem;
-      border-radius: 4px;
-      font-weight: 700 !important;
-    }
-    .nav-cta:hover { background: var(--gold-light); color: var(--dark) !important; }
-
-    /* HERO */
-    .hero {
       min-height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 6rem 2rem 4rem;
-      background:
-        radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.12) 0%, transparent 65%),
-        var(--dark);
-      position: relative;
-      overflow: hidden;
+      flex-direction: column;
     }
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(201,168,76,0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(201,168,76,0.05) 1px, transparent 1px);
-      background-size: 60px 60px;
-    }
-    .hero-inner { position: relative; max-width: 780px; }
-    .hero-badge {
-      display: inline-block;
-      background: rgba(201,168,76,0.1);
-      border: 1px solid rgba(201,168,76,0.35);
-      color: var(--gold);
-      font-size: 0.75rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 0.35rem 1rem;
-      border-radius: 20px;
-      margin-bottom: 1.5rem;
-    }
-    .hero h1 {
-      font-size: clamp(2.2rem, 6vw, 4rem);
-      font-weight: 800;
-      line-height: 1.15;
-      margin-bottom: 1.2rem;
-      letter-spacing: -1px;
-    }
-    .hero h1 span { color: var(--gold); }
-    .hero p {
-      font-size: 1.15rem;
-      color: var(--text-muted);
-      max-width: 540px;
-      margin: 0 auto 2.5rem;
-    }
-    .btn-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-    .btn-primary {
-      background: var(--gold);
-      color: var(--dark);
-      padding: 0.85rem 2.2rem;
-      border-radius: 5px;
-      font-weight: 700;
-      font-size: 1rem;
-      text-decoration: none;
-      letter-spacing: 0.5px;
-      transition: background 0.2s, transform 0.15s;
-    }
-    .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
-    .btn-outline {
-      border: 1px solid rgba(201,168,76,0.5);
-      color: var(--gold);
-      padding: 0.85rem 2.2rem;
-      border-radius: 5px;
-      font-size: 1rem;
-      text-decoration: none;
-      letter-spacing: 0.5px;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .btn-outline:hover { border-color: var(--gold); background: rgba(201,168,76,0.08); }
 
-    /* STATS */
-    .stats {
+    /* TOPBAR */
+    header {
       display: flex;
-      justify-content: center;
-      gap: 3rem;
-      flex-wrap: wrap;
-      padding: 3rem 2rem;
-      border-top: 1px solid rgba(255,255,255,0.05);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem 2rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
     }
-    .stat { text-align: center; }
-    .stat-num { font-size: 2.2rem; font-weight: 800; color: var(--gold); }
-    .stat-label { font-size: 0.85rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
-
-    /* SECTION commons */
-    section { padding: 5rem 2rem; }
-    .container { max-width: 1100px; margin: 0 auto; }
-    .section-label {
-      font-size: 0.75rem;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 0.75rem;
-    }
-    .section-title {
-      font-size: clamp(1.8rem, 4vw, 2.8rem);
-      font-weight: 800;
-      margin-bottom: 1rem;
-      line-height: 1.2;
-    }
-    .section-sub {
-      font-size: 1.05rem;
-      color: var(--text-muted);
-      max-width: 520px;
-      margin-bottom: 3rem;
-    }
-
-    /* WHY */
-    #miert { background: var(--dark2); }
-    .why-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 2rem;
-    }
-    .why-card {
-      background: var(--dark3);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 10px;
-      padding: 2rem;
-      transition: border-color 0.25s, transform 0.2s;
-    }
-    .why-card:hover { border-color: rgba(201,168,76,0.4); transform: translateY(-4px); }
-    .why-icon {
-      width: 48px; height: 48px;
-      background: rgba(201,168,76,0.1);
-      border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem;
-      margin-bottom: 1.2rem;
-    }
-    .why-card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
-    .why-card p { font-size: 0.92rem; color: var(--text-muted); }
-
-    /* PRODUCTS */
-    #termekek { background: var(--dark); }
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-    }
-    .product-card {
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 12px;
-      overflow: hidden;
-      transition: border-color 0.25s, transform 0.2s;
-      position: relative;
-    }
-    .product-card:hover { border-color: rgba(201,168,76,0.45); transform: translateY(-4px); }
-    .product-card.featured { border-color: rgba(201,168,76,0.6); }
-    .product-badge {
-      position: absolute;
-      top: 1rem; right: 1rem;
-      background: var(--gold);
-      color: var(--dark);
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      padding: 0.25rem 0.7rem;
-      border-radius: 20px;
-    }
-    .product-img {
-      width: 100%; height: 180px;
-      object-fit: cover;
-      background: var(--dark3);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 4rem;
-    }
-    .product-body { padding: 1.5rem; }
-    .product-body h3 { font-size: 1.2rem; margin-bottom: 0.4rem; }
-    .product-body p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.2rem; }
-    .product-price { font-size: 1.5rem; font-weight: 800; color: var(--gold); }
-    .product-price span { font-size: 0.85rem; color: var(--text-muted); font-weight: 400; }
-    .product-features { list-style: none; margin: 1rem 0 1.5rem; }
-    .product-features li {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      padding: 0.3rem 0;
-      display: flex; align-items: center; gap: 0.5rem;
-    }
-    .product-features li::before { content: '✓'; color: var(--gold); font-weight: 700; }
-    .btn-card {
-      display: block;
-      text-align: center;
-      background: rgba(201,168,76,0.1);
-      border: 1px solid rgba(201,168,76,0.4);
-      color: var(--gold);
-      padding: 0.7rem;
+    .logo { font-size: 1.1rem; font-weight: 700; color: var(--accent); letter-spacing: 1px; }
+    .header-actions { display: flex; gap: 0.75rem; }
+    .btn {
+      padding: 0.55rem 1.2rem;
       border-radius: 6px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.9rem;
-      transition: background 0.2s;
-    }
-    .btn-card:hover { background: var(--gold); color: var(--dark); }
-    .featured .btn-card { background: var(--gold); color: var(--dark); }
-    .featured .btn-card:hover { background: var(--gold-light); }
-
-    /* HOW IT WORKS */
-    #hogyan { background: var(--dark2); }
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 2rem;
-      counter-reset: step;
-    }
-    .step {
-      text-align: center;
-      padding: 2rem 1.5rem;
-      position: relative;
-    }
-    .step-num {
-      width: 56px; height: 56px;
-      border-radius: 50%;
-      border: 2px solid var(--gold);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem;
-      font-weight: 800;
-      color: var(--gold);
-      margin: 0 auto 1.2rem;
-    }
-    .step h3 { font-size: 1.05rem; margin-bottom: 0.5rem; }
-    .step p { font-size: 0.9rem; color: var(--text-muted); }
-
-    /* TESTIMONIALS */
-    #velemeny { background: var(--dark); }
-    .testi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-    }
-    .testi-card {
-      background: var(--dark2);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 10px;
-      padding: 2rem;
-    }
-    .testi-stars { color: var(--gold); font-size: 1.1rem; margin-bottom: 1rem; letter-spacing: 2px; }
-    .testi-text { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1.5rem; font-style: italic; }
-    .testi-author { display: flex; align-items: center; gap: 1rem; }
-    .testi-avatar {
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      background: rgba(201,168,76,0.2);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--gold);
-      flex-shrink: 0;
-    }
-    .testi-name { font-weight: 700; font-size: 0.95rem; }
-    .testi-role { font-size: 0.8rem; color: var(--text-muted); }
-
-    /* FAQ */
-    #gyik { background: var(--dark2); }
-    .faq-list { max-width: 720px; }
-    .faq-item {
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-      padding: 1.4rem 0;
-    }
-    .faq-q {
-      font-size: 1rem;
+      font-size: 0.88rem;
       font-weight: 600;
       cursor: pointer;
+      border: none;
+      transition: all 0.18s;
+      font-family: inherit;
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-accent:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+    /* LAYOUT */
+    main {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-      color: var(--text);
+      flex: 1;
+      overflow: hidden;
+      height: calc(100vh - 57px);
     }
-    .faq-q::after { content: '+'; color: var(--gold); font-size: 1.3rem; flex-shrink: 0; }
-    .faq-a { font-size: 0.92rem; color: var(--text-muted); padding-top: 0.8rem; display: none; }
-    .faq-item.open .faq-q::after { content: '−'; }
-    .faq-item.open .faq-a { display: block; }
 
-    /* CTA */
-    .cta-section {
-      background:
-        radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.1) 0%, transparent 70%),
-        var(--dark3);
-      text-align: center;
-      padding: 6rem 2rem;
-      border-top: 1px solid rgba(201,168,76,0.15);
-    }
-    .cta-section h2 { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800; margin-bottom: 1rem; }
-    .cta-section p { font-size: 1.05rem; color: var(--text-muted); margin-bottom: 2.5rem; max-width: 500px; margin-left: auto; margin-right: auto; }
-
-    /* CONTACT FORM */
-    .contact-form {
-      max-width: 520px;
-      margin: 0 auto;
+    /* SIDEBAR */
+    .sidebar {
+      width: 340px;
+      min-width: 300px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      overflow: hidden;
     }
-    .form-row { display: flex; gap: 1rem; }
-    .form-row input { flex: 1; }
-    input, textarea, select {
-      width: 100%;
-      background: var(--dark2);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 6px;
-      color: var(--text);
-      padding: 0.8rem 1rem;
-      font-size: 0.95rem;
-      font-family: inherit;
-      transition: border-color 0.2s;
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
     }
-    input::placeholder, textarea::placeholder { color: var(--text-muted); }
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: var(--gold);
-    }
-    textarea { resize: vertical; min-height: 100px; }
-    .form-submit {
-      background: var(--gold);
-      color: var(--dark);
-      border: none;
-      padding: 0.9rem;
-      border-radius: 6px;
-      font-size: 1rem;
-      font-weight: 700;
+    .tab {
+      flex: 1;
+      padding: 0.85rem 0.5rem;
+      text-align: center;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
       cursor: pointer;
-      transition: background 0.2s;
+      border-bottom: 2px solid transparent;
+      transition: all 0.18s;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* TAB PANELS */
+    .tab-panels { flex: 1; overflow-y: auto; }
+    .tab-panel { display: none; padding: 1.5rem; }
+    .tab-panel.active { display: block; }
+
+    /* FORM */
+    .field { margin-bottom: 1.1rem; }
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    .form-submit:hover { background: var(--gold-light); }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="url"],
+    select,
+    textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 0.65rem 0.85rem;
+      font-size: 0.92rem;
+      font-family: inherit;
+      transition: border-color 0.18s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    input::placeholder { color: var(--text-muted); }
+    select option { background: #1a1d27; }
 
-    /* FOOTER */
-    footer {
-      background: #0A0A0A;
-      border-top: 1px solid rgba(255,255,255,0.05);
-      padding: 2.5rem 2rem;
+    /* COLOR ROW */
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.1rem;
+    }
+    .color-row label { margin: 0; flex: 1; }
+    .color-swatch {
+      width: 38px;
+      height: 38px;
+      border-radius: 6px;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      flex-shrink: 0;
+      overflow: hidden;
+      padding: 0;
+    }
+    input[type="color"] {
+      width: 38px;
+      height: 38px;
+      border-radius: 6px;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      padding: 2px;
+      background: var(--surface2);
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; border-radius: 4px; }
+    input[type="color"]::-webkit-color-swatch { border: none; border-radius: 4px; }
+
+    /* PRESET COLORS */
+    .preset-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.6rem;
+    }
+    .presets {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+    .preset {
+      border-radius: 8px;
+      padding: 0.55rem 0.5rem;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.18s, transform 0.15s;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .preset:hover { transform: translateY(-2px); }
+    .preset.selected { border-color: var(--accent); }
+
+    /* LOGO UPLOAD */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 1rem;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--accent);
+      background: rgba(99,102,241,0.05);
+    }
+    .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .upload-zone p { font-size: 0.85rem; color: var(--text-muted); }
+    .upload-zone strong { color: var(--accent); }
+    #logo-input { display: none; }
+
+    .logo-preview-wrap {
+      display: none;
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-bottom: 1rem;
       text-align: center;
     }
-    footer .logo { font-size: 1.1rem; margin-bottom: 0.5rem; display: block; }
-    footer p { font-size: 0.85rem; color: var(--text-muted); }
+    .logo-preview-wrap img {
+      max-height: 80px;
+      max-width: 100%;
+      border-radius: 4px;
+    }
+    .logo-controls { margin-top: 0.75rem; display: flex; justify-content: center; gap: 0.5rem; }
 
-    /* RESPONSIVE */
-    @media (max-width: 600px) {
-      nav ul { display: none; }
-      .form-row { flex-direction: column; }
+    /* RANGE */
+    .range-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .range-row label { margin: 0; flex-shrink: 0; width: 100px; }
+    input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+    .range-val { font-size: 0.82rem; color: var(--text-muted); width: 30px; text-align: right; }
+
+    /* LAYOUT TEMPLATES */
+    .templates {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    .template-card {
+      border-radius: 8px;
+      border: 2px solid var(--border);
+      padding: 0.75rem;
+      cursor: pointer;
+      transition: border-color 0.18s;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .template-card:hover { border-color: var(--text-muted); }
+    .template-card.selected { border-color: var(--accent); color: var(--accent); }
+    .template-thumb {
+      width: 100%;
+      aspect-ratio: 1.75;
+      border-radius: 4px;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface2);
+      font-size: 1.5rem;
+    }
+
+    /* PREVIEW AREA */
+    .preview-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      gap: 2rem;
+      background: var(--bg);
+      overflow-y: auto;
+    }
+
+    .preview-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    /* CARD */
+    .card-wrapper {
+      perspective: 1000px;
+      width: min(560px, 90vw);
+    }
+
+    .card-flip {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1.74;
+      transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .card-flip.flipped { transform: rotateY(180deg); }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+    }
+
+    .card-back { transform: rotateY(180deg); }
+
+    /* CARD INNER */
+    #card-front {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      position: relative;
+      transition: background 0.3s;
+    }
+
+    /* LAYOUT: Classic */
+    #card-front.layout-classic { flex-direction: column; justify-content: flex-end; padding: 8%; }
+    #card-front.layout-classic .card-logo { position: absolute; top: 8%; right: 8%; }
+    #card-front.layout-classic .card-name { font-size: clamp(1rem, 3vw, 1.5rem); font-weight: 700; margin-bottom: 0.15em; }
+    #card-front.layout-classic .card-title { font-size: clamp(0.6rem, 1.8vw, 0.85rem); margin-bottom: 1em; opacity: 0.75; }
+    #card-front.layout-classic .card-contacts { display: flex; flex-direction: column; gap: 0.2em; }
+    #card-front.layout-classic .card-contact-item { font-size: clamp(0.55rem, 1.5vw, 0.75rem); opacity: 0.8; display: flex; align-items: center; gap: 0.4em; }
+
+    /* LAYOUT: Centered */
+    #card-front.layout-centered { flex-direction: column; justify-content: center; align-items: center; padding: 8%; text-align: center; }
+    #card-front.layout-centered .card-logo { margin-bottom: 0.6em; }
+    #card-front.layout-centered .card-name { font-size: clamp(1rem, 3vw, 1.5rem); font-weight: 700; margin-bottom: 0.15em; }
+    #card-front.layout-centered .card-title { font-size: clamp(0.6rem, 1.8vw, 0.85rem); margin-bottom: 1em; opacity: 0.75; }
+    #card-front.layout-centered .card-contacts { display: flex; flex-direction: column; align-items: center; gap: 0.2em; }
+    #card-front.layout-centered .card-contact-item { font-size: clamp(0.55rem, 1.5vw, 0.75rem); opacity: 0.8; }
+
+    /* LAYOUT: Split */
+    #card-front.layout-split { flex-direction: row; }
+    #card-front.layout-split .card-left {
+      width: 40%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8%;
+      background: rgba(0,0,0,0.2);
+    }
+    #card-front.layout-split .card-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8%;
+    }
+    #card-front.layout-split .card-logo { margin-bottom: 0.5em; }
+    #card-front.layout-split .card-company { font-size: clamp(0.7rem, 2vw, 1rem); font-weight: 700; text-align: center; }
+    #card-front.layout-split .card-name { font-size: clamp(0.9rem, 2.5vw, 1.3rem); font-weight: 700; margin-bottom: 0.15em; }
+    #card-front.layout-split .card-title { font-size: clamp(0.55rem, 1.6vw, 0.8rem); margin-bottom: 0.8em; opacity: 0.75; }
+    #card-front.layout-split .card-contacts { display: flex; flex-direction: column; gap: 0.2em; }
+    #card-front.layout-split .card-contact-item { font-size: clamp(0.5rem, 1.4vw, 0.72rem); opacity: 0.8; display: flex; align-items: center; gap: 0.4em; }
+
+    /* LAYOUT: Minimal */
+    #card-front.layout-minimal { flex-direction: column; justify-content: center; padding: 10%; }
+    #card-front.layout-minimal .card-logo { margin-bottom: 1em; }
+    #card-front.layout-minimal .card-name { font-size: clamp(1.1rem, 3.2vw, 1.7rem); font-weight: 700; margin-bottom: 0.1em; }
+    #card-front.layout-minimal .card-title { font-size: clamp(0.6rem, 1.8vw, 0.85rem); margin-bottom: 1.2em; opacity: 0.6; letter-spacing: 2px; text-transform: uppercase; }
+    #card-front.layout-minimal .card-contacts { display: flex; flex-direction: column; gap: 0.2em; }
+    #card-front.layout-minimal .card-contact-item { font-size: clamp(0.55rem, 1.5vw, 0.75rem); opacity: 0.75; display: flex; align-items: center; gap: 0.4em; }
+
+    /* Card back */
+    #card-back {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-back-logo { max-width: 50%; max-height: 50%; object-fit: contain; opacity: 0.85; }
+    .card-back-text { font-size: clamp(1rem, 3vw, 1.5rem); font-weight: 700; opacity: 0.3; }
+
+    .card-logo img { max-height: clamp(28px, 5vw, 45px); max-width: clamp(60px, 12vw, 100px); object-fit: contain; }
+
+    /* FLIP BTN */
+    .flip-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.55rem 1.4rem;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-family: inherit;
+      font-weight: 600;
+      transition: all 0.18s;
+    }
+    .flip-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .section-sep {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.2rem 0;
+    }
+
+    .small-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.35rem 0.8rem;
+      border-radius: 5px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .small-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .small-btn.danger:hover { border-color: #ef4444; color: #ef4444; }
+
+    @media (max-width: 768px) {
+      main { flex-direction: column; height: auto; }
+      .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+      .preview-area { padding: 2rem 1rem; }
     }
   </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <div class="logo">PremiumCard</div>
-  <ul>
-    <li><a href="#miert">Miért mi?</a></li>
-    <li><a href="#termekek">Termékek</a></li>
-    <li><a href="#hogyan">Hogyan?</a></li>
-    <li><a href="#velemeny">Vélemények</a></li>
-    <li><a href="#kapcsolat" class="nav-cta">Ajánlatot kérek</a></li>
-  </ul>
-</nav>
+<header>
+  <div class="logo">CardEditor</div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="flipCard()">↺ Hátlap</button>
+    <button class="btn btn-accent" onclick="downloadCard()">⬇ Letöltés PNG</button>
+  </div>
+</header>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-inner">
-    <div class="hero-badge">Prémium névjegykártyák</div>
-    <h1>Az első benyomás<br /><span>örökre megmarad.</span></h1>
-    <p>Professzionális névjegykártyák, amelyek tükrözik a szakértelmét – minőségi anyagok, egyedi design, gyors szállítás.</p>
-    <div class="btn-group">
-      <a href="#termekek" class="btn-primary">Termékek megtekintése</a>
-      <a href="#kapcsolat" class="btn-outline">Egyedi ajánlat</a>
+<main>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('tartalom')">Tartalom</div>
+      <div class="tab" onclick="switchTab('szinek')">Színek</div>
+      <div class="tab" onclick="switchTab('logo')">Logó</div>
+      <div class="tab" onclick="switchTab('elrendez')">Elrendezés</div>
     </div>
-  </div>
-</section>
+    <div class="tab-panels">
 
-<!-- STATS -->
-<div class="stats">
-  <div class="stat">
-    <div class="stat-num">4 800+</div>
-    <div class="stat-label">Elégedett ügyfél</div>
-  </div>
-  <div class="stat">
-    <div class="stat-num">12+</div>
-    <div class="stat-label">Év tapasztalat</div>
-  </div>
-  <div class="stat">
-    <div class="stat-num">48 óra</div>
-    <div class="stat-label">Átlagos szállítás</div>
-  </div>
-  <div class="stat">
-    <div class="stat-num">100%</div>
-    <div class="stat-label">Elégedettség garancia</div>
-  </div>
-</div>
-
-<!-- WHY -->
-<section id="miert">
-  <div class="container">
-    <div class="section-label">Miért minket válasszon?</div>
-    <h2 class="section-title">Minden részlet számít,<br />amikor bemutatkozik.</h2>
-    <p class="section-sub">Névjegykártyáink minőségi anyagból, egyedi kivitelezéssel készülnek – pontosan azt sugallják, amit Ön is képvisel.</p>
-    <div class="why-grid">
-      <div class="why-card">
-        <div class="why-icon">✦</div>
-        <h3>Prémium anyagok</h3>
-        <p>350 g/m²-es matt, fényes, soft-touch vagy textúrált lapok – olyan tapintás, amit nem felejtenek el.</p>
-      </div>
-      <div class="why-card">
-        <div class="why-icon">⚡</div>
-        <h3>Gyors átfutás</h3>
-        <p>Megrendeléstől kézbesítésig általában 2–4 munkanap. Sürgős megrendelés is lehetséges.</p>
-      </div>
-      <div class="why-card">
-        <div class="why-icon">◈</div>
-        <h3>Egyedi tervezés</h3>
-        <p>Saját grafikusunk segít a tökéletes design megtervezésében, vagy feltöltheti saját sablonját.</p>
-      </div>
-      <div class="why-card">
-        <div class="why-icon">◉</div>
-        <h3>Kis és nagy tétel</h3>
-        <p>Már 50 darabtól is rendelhet – ideális egyéni vállalkozóknak és nagyobb cégeknek egyaránt.</p>
-      </div>
-      <div class="why-card">
-        <div class="why-icon">◎</div>
-        <h3>Elégedettség garancia</h3>
-        <p>Ha nem elégedett a végeredménnyel, újranyomjuk – költség nélkül. Ez az ígéretünk.</p>
-      </div>
-      <div class="why-card">
-        <div class="why-icon">❖</div>
-        <h3>Magyar gyártás</h3>
-        <p>Itthon nyomtatjuk, itthon ellenőrzük. Nincs felesleges várakozás, nincs kommunikációs akadály.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PRODUCTS -->
-<section id="termekek">
-  <div class="container">
-    <div class="section-label">Csomagjaink</div>
-    <h2 class="section-title">Válasszon az igényei szerint.</h2>
-    <p class="section-sub">Mindhárom csomag tartalmaz ingyenes design konzultációt és korrektúrát.</p>
-    <div class="product-grid">
-
-      <div class="product-card">
-        <div class="product-img">📇</div>
-        <div class="product-body">
-          <h3>Alap</h3>
-          <p>Tiszta, letisztult névjegy azoknak, akik az egyszerűségben látják az erőt.</p>
-          <div class="product-price">3 900 Ft <span>/ 100 db-tól</span></div>
-          <ul class="product-features">
-            <li>350 g/m² matt papír</li>
-            <li>Egyoldalas nyomtatás</li>
-            <li>Standard 85×54 mm méret</li>
-            <li>4–5 munkanapok átfutás</li>
-          </ul>
-          <a href="#kapcsolat" class="btn-card">Ezt kérem</a>
+      <!-- TARTALOM -->
+      <div class="tab-panel active" id="panel-tartalom">
+        <div class="field">
+          <label>Teljes név</label>
+          <input type="text" id="f-name" placeholder="pl. Kovács Péter" oninput="update()" />
+        </div>
+        <div class="field">
+          <label>Beosztás / Cím</label>
+          <input type="text" id="f-title" placeholder="pl. Ügyvezető igazgató" oninput="update()" />
+        </div>
+        <div class="field">
+          <label>Cég neve</label>
+          <input type="text" id="f-company" placeholder="pl. Kovács Kft." oninput="update()" />
+        </div>
+        <hr class="section-sep">
+        <div class="field">
+          <label>Telefonszám</label>
+          <input type="tel" id="f-phone" placeholder="+36 30 000 0000" oninput="update()" />
+        </div>
+        <div class="field">
+          <label>E-mail cím</label>
+          <input type="email" id="f-email" placeholder="pelda@email.hu" oninput="update()" />
+        </div>
+        <div class="field">
+          <label>Weboldal</label>
+          <input type="url" id="f-web" placeholder="www.pelda.hu" oninput="update()" />
+        </div>
+        <div class="field">
+          <label>Cím</label>
+          <input type="text" id="f-address" placeholder="1234 Budapest, Példa u. 1." oninput="update()" />
+        </div>
+        <hr class="section-sep">
+        <div class="field">
+          <label>Betűtípus</label>
+          <select id="f-font" onchange="update()">
+            <option value="Inter">Inter (Modern)</option>
+            <option value="Playfair Display">Playfair Display (Elegáns)</option>
+            <option value="Montserrat">Montserrat (Erőteljes)</option>
+            <option value="Roboto">Roboto (Tiszta)</option>
+            <option value="Lato">Lato (Barátságos)</option>
+          </select>
         </div>
       </div>
 
-      <div class="product-card featured">
-        <div class="product-badge">Legnépszerűbb</div>
-        <div class="product-img">🪙</div>
-        <div class="product-body">
-          <h3>Prémium</h3>
-          <p>Soft-touch laminálás, arany/ezüst részletek – kártyája igazi személyiséget kap.</p>
-          <div class="product-price">7 400 Ft <span>/ 100 db-tól</span></div>
-          <ul class="product-features">
-            <li>Soft-touch laminálás</li>
-            <li>Kétoldalas nyomtatás</li>
-            <li>Arany vagy ezüst fólianyomás</li>
-            <li>Ingyenes design sablon</li>
-            <li>2–3 munkanapok átfutás</li>
-          </ul>
-          <a href="#kapcsolat" class="btn-card">Ezt kérem</a>
+      <!-- SZÍNEK -->
+      <div class="tab-panel" id="panel-szinek">
+        <div class="preset-label">Előre beállított stílusok</div>
+        <div class="presets">
+          <div class="preset selected" style="background:#1a1a2e;color:#e0e0ff;" onclick="applyPreset('#1a1a2e','#e0e0ff','#7c73e6')" data-id="0">Éjkék</div>
+          <div class="preset" style="background:#1a1a1a;color:#c9a84c;" onclick="applyPreset('#1a1a1a','#c9a84c','#c9a84c')" data-id="1">Fekete-Arany</div>
+          <div class="preset" style="background:#f8f8f8;color:#1a1a1a;" onclick="applyPreset('#f8f8f8','#1a1a1a','#3b82f6')" data-id="2">Fehér</div>
+          <div class="preset" style="background:#0f4c75;color:#ffffff;" onclick="applyPreset('#0f4c75','#ffffff','#1b98e0')" data-id="3">Óceán</div>
+          <div class="preset" style="background:#2d4a22;color:#d4e8c0;" onclick="applyPreset('#2d4a22','#d4e8c0','#7bb661')" data-id="4">Erdő</div>
+          <div class="preset" style="background:#3d0000;color:#ffd6d6;" onclick="applyPreset('#3d0000','#ffd6d6','#e05c5c')" data-id="5">Bíbor</div>
+        </div>
+        <hr class="section-sep">
+        <div class="preset-label">Egyéni színek</div>
+        <div class="color-row">
+          <label>Háttérszín</label>
+          <input type="color" id="c-bg" value="#1a1a2e" oninput="updateColors()" />
+        </div>
+        <div class="color-row">
+          <label>Szöveg színe</label>
+          <input type="color" id="c-text" value="#e0e0ff" oninput="updateColors()" />
+        </div>
+        <div class="color-row">
+          <label>Kiemelő szín</label>
+          <input type="color" id="c-accent" value="#7c73e6" oninput="updateColors()" />
+        </div>
+        <hr class="section-sep">
+        <div class="preset-label">Kártya háttér</div>
+        <div class="field">
+          <select id="bg-style" onchange="updateColors()">
+            <option value="solid">Egyszínű</option>
+            <option value="gradient">Átmenet (alulról)</option>
+            <option value="gradient-diag">Átmenet (átlós)</option>
+            <option value="gradient-radial">Sugárzó</option>
+          </select>
+        </div>
+        <div class="color-row">
+          <label>Átmenet vége</label>
+          <input type="color" id="c-bg2" value="#2a2a4e" oninput="updateColors()" />
         </div>
       </div>
 
-      <div class="product-card">
-        <div class="product-img">💎</div>
-        <div class="product-body">
-          <h3>Luxus</h3>
-          <p>Fém kártya, egyedi kivágás, dombornyomás – amikor a legmagasabb minőség az elvárás.</p>
-          <div class="product-price">18 500 Ft <span>/ 50 db-tól</span></div>
-          <ul class="product-features">
-            <li>Rozsdamentes acél vagy PVC</li>
-            <li>Lézer gravírozás</li>
-            <li>Dombornyomás / mélynyomás</li>
-            <li>Dedikált designeres</li>
-            <li>Exkluzív csomagolásban</li>
-          </ul>
-          <a href="#kapcsolat" class="btn-card">Ezt kérem</a>
+      <!-- LOGÓ -->
+      <div class="tab-panel" id="panel-logo">
+        <div class="upload-zone" id="upload-zone" onclick="document.getElementById('logo-input').click()"
+             ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+          <div class="upload-icon">🖼️</div>
+          <p><strong>Kattintson</strong> vagy húzza ide a logót</p>
+          <p style="margin-top:0.3rem; font-size:0.78rem;">PNG, JPG, SVG – max. 5 MB</p>
         </div>
-      </div>
+        <input type="file" id="logo-input" accept="image/*" onchange="loadLogo(event)" />
 
-    </div>
-  </div>
-</section>
-
-<!-- HOW IT WORKS -->
-<section id="hogyan">
-  <div class="container">
-    <div class="section-label">Rendelési folyamat</div>
-    <h2 class="section-title">Négy lépés, és kész.</h2>
-    <p class="section-sub">Egyszerű és átlátható – minden lépésnél ott vagyunk.</p>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <h3>Kapcsolatfelvétel</h3>
-        <p>Küldje el igényeit az alábbi kapcsolati űrlapon vagy e-mailben.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <h3>Design</h3>
-        <p>Grafikusunk elkészíti a terveket, Ön jóváhagyja vagy módosíttat.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <h3>Nyomtatás</h3>
-        <p>Prémium minőségű nyomtatás, szigorú minőségellenőrzéssel.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <h3>Kézbesítés</h3>
-        <p>Megrendelése megérkezik az ajtajáig – csomagolva, sérülésmentesen.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- TESTIMONIALS -->
-<section id="velemeny">
-  <div class="container">
-    <div class="section-label">Ügyfeleink mondták</div>
-    <h2 class="section-title">Nem mi mondjuk –<br />ők mondják.</h2>
-    <p class="section-sub" style="margin-bottom:3rem;">Több ezer elégedett ügyfél véleménye alapján.</p>
-    <div class="testi-grid">
-      <div class="testi-card">
-        <div class="testi-stars">★★★★★</div>
-        <p class="testi-text">„Ügyvédként az első benyomás mindent jelent. A Prémium csomaggal készült kártyáim azóta mindig témát nyitnak ügyfelekkel – mindenki megkérdezi, hol készítettem."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">KV</div>
-          <div>
-            <div class="testi-name">Kiss Veronika</div>
-            <div class="testi-role">Ügyvéd, Budapest</div>
+        <div class="logo-preview-wrap" id="logo-preview-wrap">
+          <img id="logo-preview-img" src="" alt="Logó előnézet" />
+          <div class="logo-controls">
+            <button class="small-btn" onclick="document.getElementById('logo-input').click()">Csere</button>
+            <button class="small-btn danger" onclick="removeLogo()">Törlés</button>
           </div>
         </div>
+
+        <hr class="section-sep">
+        <div class="field">
+          <label>Logó pozíciója</label>
+          <select id="logo-pos" onchange="update()">
+            <option value="top-left">Bal felső</option>
+            <option value="top-center">Felső közép</option>
+            <option value="top-right" selected>Jobb felső</option>
+            <option value="center">Középen</option>
+          </select>
+        </div>
+        <div class="range-row">
+          <label>Méret</label>
+          <input type="range" id="logo-size" min="20" max="120" value="50" oninput="update(); document.getElementById('logo-size-val').textContent=this.value+'px'" />
+          <span class="range-val" id="logo-size-val">50px</span>
+        </div>
+        <hr class="section-sep">
+        <p style="font-size:0.82rem; color:var(--text-muted);">A logó a hátlapon is megjelenik.</p>
       </div>
-      <div class="testi-card">
-        <div class="testi-stars">★★★★★</div>
-        <p class="testi-text">„Ingatlanközvetítőként rengeteg kártyát adok ki. A gyors átfutás és a megbízható minőség miatt már 3 éve itt rendelek. Ajánlom minden kollegámnak."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">NB</div>
-          <div>
-            <div class="testi-name">Nagy Balázs</div>
-            <div class="testi-role">Ingatlanközvetítő, Győr</div>
+
+      <!-- ELRENDEZÉS -->
+      <div class="tab-panel" id="panel-elrendez">
+        <div class="preset-label" style="margin-bottom:0.8rem;">Kártya elrendezése</div>
+        <div class="templates">
+          <div class="template-card selected" data-layout="classic" onclick="setLayout('classic', this)">
+            <div class="template-thumb">⬅ ↙</div>
+            Klasszikus
+          </div>
+          <div class="template-card" data-layout="centered" onclick="setLayout('centered', this)">
+            <div class="template-thumb">⊙</div>
+            Középre zárt
+          </div>
+          <div class="template-card" data-layout="split" onclick="setLayout('split', this)">
+            <div class="template-thumb">▌▐</div>
+            Osztott
+          </div>
+          <div class="template-card" data-layout="minimal" onclick="setLayout('minimal', this)">
+            <div class="template-thumb">— —</div>
+            Minimál
           </div>
         </div>
-      </div>
-      <div class="testi-card">
-        <div class="testi-stars">★★★★★</div>
-        <p class="testi-text">„A fémkártya egyszerűen lenyűgöző. Minden konferencián megáll a szem rajta. Prémium termék, prémium kiszolgálás – semmi más nem jön szóba."</p>
-        <div class="testi-author">
-          <div class="testi-avatar">SL</div>
-          <div>
-            <div class="testi-name">Szabó László</div>
-            <div class="testi-role">Vezérigazgató, Debrecen</div>
-          </div>
+        <hr class="section-sep">
+        <div class="range-row">
+          <label>Lekerekítés</label>
+          <input type="range" id="card-radius" min="0" max="32" value="16"
+            oninput="document.querySelectorAll('.card-face').forEach(f=>f.style.borderRadius=this.value+'px'); document.getElementById('r-val').textContent=this.value+'px'" />
+          <span class="range-val" id="r-val">16px</span>
+        </div>
+        <div class="range-row">
+          <label>Árnyék</label>
+          <input type="range" id="card-shadow" min="0" max="80" value="40"
+            oninput="setShadow(this.value); document.getElementById('s-val').textContent=this.value" />
+          <span class="range-val" id="s-val">40</span>
         </div>
       </div>
+
     </div>
   </div>
-</section>
 
-<!-- FAQ -->
-<section id="gyik">
-  <div class="container">
-    <div class="section-label">Gyakori kérdések</div>
-    <h2 class="section-title">Minden válasz egy helyen.</h2>
-    <p class="section-sub">Ha nem talál választ kérdésére, írjon nekünk!</p>
-    <div class="faq-list">
-      <div class="faq-item">
-        <div class="faq-q">Mi a minimális rendelési mennyiség?</div>
-        <div class="faq-a">Az Alap és Prémium csomagban már 50 darabtól rendelhet. A Luxus fémkártyákhoz minimum 25 darab szükséges.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">Feltölthetem a saját tervem?</div>
-        <div class="faq-a">Természetesen! PDF, AI, vagy PSD formátumot fogadunk el. Ha nincs saját terve, grafikusunk segít egyet elkészíteni.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">Mennyit kell várni a kártyákra?</div>
-        <div class="faq-a">Az Alap csomagnál 4–5 munkanap, a Prémiumnál 2–3 munkanap, a Luxusnál 5–7 munkanap az átlagos átfutási idő. Sürgős rendeléshez kérjen egyedi ajánlatot.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">Hogyan zajlik a fizetés?</div>
-        <div class="faq-a">Elfogadunk banki átutalást és online kártyás fizetést. Céges megrendelőknek utólagos fizetési lehetőség is elérhető.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q">Mi a teendő, ha nem elégedett a végeredménnyel?</div>
-        <div class="faq-a">100%-os elégedettségi garanciát vállalunk. Ha bármilyen minőségi problémát tapasztal, újranyomjuk a kártyákat – díjmentesen.</div>
+  <!-- PREVIEW -->
+  <div class="preview-area">
+    <div class="preview-label">Előnézet – Elülső oldal</div>
+
+    <div class="card-wrapper">
+      <div class="card-flip" id="card-flip">
+
+        <!-- FRONT -->
+        <div class="card-face" id="card-face-front">
+          <div id="card-front" class="layout-classic">
+            <!-- rendered by JS -->
+          </div>
+        </div>
+
+        <!-- BACK -->
+        <div class="card-face card-back" id="card-face-back">
+          <div id="card-back">
+            <span class="card-back-text" id="back-company-text">Cég neve</span>
+          </div>
+        </div>
+
       </div>
     </div>
+
+    <button class="flip-btn" onclick="flipCard()">↺ Kártya megfordítása</button>
   </div>
-</section>
-
-<!-- CTA / CONTACT -->
-<section class="cta-section" id="kapcsolat">
-  <h2>Kezdjük el együtt!</h2>
-  <p>Kérjen ingyenes ajánlatot – 24 órán belül visszajelzünk.</p>
-  <form class="contact-form" onsubmit="handleSubmit(event)">
-    <div class="form-row">
-      <input type="text" placeholder="Neve *" required />
-      <input type="email" placeholder="Email-cím *" required />
-    </div>
-    <input type="tel" placeholder="Telefonszám" />
-    <select>
-      <option value="" disabled selected>Melyik csomag érdekli?</option>
-      <option>Alap</option>
-      <option>Prémium</option>
-      <option>Luxus</option>
-      <option>Nem tudom még</option>
-    </select>
-    <textarea placeholder="Egyéb megjegyzés, speciális igény..."></textarea>
-    <button type="submit" class="form-submit">Ajánlatot kérek →</button>
-  </form>
-</section>
-
-<!-- FOOTER -->
-<footer>
-  <span class="logo">PremiumCard</span>
-  <p>© 2025 PremiumCard – Névjegykártyák szakembereknek. Minden jog fenntartva.</p>
-</footer>
+</main>
 
 <script>
-  // FAQ accordion
-  document.querySelectorAll('.faq-q').forEach(q => {
-    q.addEventListener('click', () => {
-      const item = q.parentElement;
-      const isOpen = item.classList.contains('open');
-      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-      if (!isOpen) item.classList.add('open');
-    });
-  });
+  // STATE
+  let state = {
+    name: '', title: '', company: '', phone: '', email: '', web: '', address: '',
+    font: 'Inter',
+    bgColor: '#1a1a2e', textColor: '#e0e0ff', accentColor: '#7c73e6',
+    bgColor2: '#2a2a4e', bgStyle: 'solid',
+    logoSrc: null, logoPos: 'top-right', logoSize: 50,
+    layout: 'classic',
+    flipped: false
+  };
 
-  // Form submit
-  function handleSubmit(e) {
+  // INIT
+  document.getElementById('c-bg').value = state.bgColor;
+  document.getElementById('c-text').value = state.textColor;
+  document.getElementById('c-accent').value = state.accentColor;
+  document.getElementById('c-bg2').value = state.bgColor2;
+  renderCard();
+
+  // TABS
+  function switchTab(id) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('panel-' + id).classList.add('active');
+  }
+
+  // UPDATE from inputs
+  function update() {
+    state.name = document.getElementById('f-name').value;
+    state.title = document.getElementById('f-title').value;
+    state.company = document.getElementById('f-company').value;
+    state.phone = document.getElementById('f-phone').value;
+    state.email = document.getElementById('f-email').value;
+    state.web = document.getElementById('f-web').value;
+    state.address = document.getElementById('f-address').value;
+    state.font = document.getElementById('f-font').value;
+    state.logoPos = document.getElementById('logo-pos').value;
+    state.logoSize = parseInt(document.getElementById('logo-size').value);
+    renderCard();
+  }
+
+  function updateColors() {
+    state.bgColor = document.getElementById('c-bg').value;
+    state.textColor = document.getElementById('c-text').value;
+    state.accentColor = document.getElementById('c-accent').value;
+    state.bgColor2 = document.getElementById('c-bg2').value;
+    state.bgStyle = document.getElementById('bg-style').value;
+    renderCard();
+  }
+
+  function applyPreset(bg, text, accent) {
+    state.bgColor = bg;
+    state.textColor = text;
+    state.accentColor = accent;
+    state.bgColor2 = shiftColor(bg, 20);
+    state.bgStyle = 'gradient';
+    document.getElementById('c-bg').value = bg;
+    document.getElementById('c-text').value = text;
+    document.getElementById('c-accent').value = accent;
+    document.getElementById('c-bg2').value = state.bgColor2;
+    document.getElementById('bg-style').value = 'gradient';
+    document.querySelectorAll('.preset').forEach(p => p.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+    renderCard();
+  }
+
+  function shiftColor(hex, amount) {
+    const r = Math.min(255, parseInt(hex.slice(1,3),16) + amount);
+    const g = Math.min(255, parseInt(hex.slice(3,5),16) + amount);
+    const b = Math.min(255, parseInt(hex.slice(5,7),16) + amount);
+    return '#' + [r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+  }
+
+  function setLayout(layout, el) {
+    state.layout = layout;
+    document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    renderCard();
+  }
+
+  function setShadow(v) {
+    document.querySelectorAll('.card-face').forEach(f => {
+      f.style.boxShadow = `0 ${v*0.6}px ${v*1.5}px rgba(0,0,0,${v/100})`;
+    });
+  }
+
+  // LOGO
+  function loadLogo(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      state.logoSrc = ev.target.result;
+      showLogoPreview(ev.target.result);
+      renderCard();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function showLogoPreview(src) {
+    document.getElementById('logo-preview-img').src = src;
+    document.getElementById('logo-preview-wrap').style.display = 'block';
+    document.getElementById('upload-zone').style.display = 'none';
+  }
+
+  function removeLogo() {
+    state.logoSrc = null;
+    document.getElementById('logo-preview-wrap').style.display = 'none';
+    document.getElementById('upload-zone').style.display = 'block';
+    document.getElementById('logo-input').value = '';
+    renderCard();
+  }
+
+  function dragOver(e) { e.preventDefault(); document.getElementById('upload-zone').classList.add('drag-over'); }
+  function dragLeave(e) { document.getElementById('upload-zone').classList.remove('drag-over'); }
+  function dropFile(e) {
     e.preventDefault();
-    const btn = e.target.querySelector('.form-submit');
-    btn.textContent = '✓ Üzenet elküldve! Hamarosan jelentkezünk.';
-    btn.style.background = '#2a7a3b';
-    btn.disabled = true;
+    dragLeave(e);
+    const file = e.dataTransfer.files[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => { state.logoSrc = ev.target.result; showLogoPreview(ev.target.result); renderCard(); };
+    reader.readAsDataURL(file);
+  }
+
+  // FLIP
+  function flipCard() {
+    state.flipped = !state.flipped;
+    document.getElementById('card-flip').classList.toggle('flipped', state.flipped);
+    document.querySelector('.preview-label').textContent =
+      state.flipped ? 'Előnézet – Hátlap' : 'Előnézet – Elülső oldal';
+  }
+
+  // RENDER
+  function renderCard() {
+    const s = state;
+    const front = document.getElementById('card-front');
+    front.className = 'layout-' + s.layout;
+    front.style.fontFamily = `'${s.font}', sans-serif`;
+    front.style.color = s.textColor;
+
+    // background
+    if (s.bgStyle === 'solid') {
+      front.style.background = s.bgColor;
+    } else if (s.bgStyle === 'gradient') {
+      front.style.background = `linear-gradient(to top, ${s.bgColor2}, ${s.bgColor})`;
+    } else if (s.bgStyle === 'gradient-diag') {
+      front.style.background = `linear-gradient(135deg, ${s.bgColor}, ${s.bgColor2})`;
+    } else if (s.bgStyle === 'gradient-radial') {
+      front.style.background = `radial-gradient(ellipse at center, ${s.bgColor2}, ${s.bgColor})`;
+    }
+
+    // back
+    const back = document.getElementById('card-back');
+    back.style.background = front.style.background;
+    back.style.fontFamily = front.style.fontFamily;
+
+    const logoImg = s.logoSrc ? `<img src="${s.logoSrc}" style="max-height:${s.logoSize}px;max-width:${s.logoSize*2}px;object-fit:contain;" />` : '';
+
+    const contacts = [];
+    if (s.phone)   contacts.push({ icon: '📞', val: s.phone });
+    if (s.email)   contacts.push({ icon: '✉', val: s.email });
+    if (s.web)     contacts.push({ icon: '🌐', val: s.web });
+    if (s.address) contacts.push({ icon: '📍', val: s.address });
+
+    const contactsHTML = contacts.map(c =>
+      `<span class="card-contact-item"><span>${c.icon}</span><span>${c.val}</span></span>`
+    ).join('');
+
+    const accentBar = `<div style="width:3px;height:100%;background:${s.accentColor};position:absolute;left:0;top:0;border-radius:2px 0 0 2px;"></div>`;
+
+    if (s.layout === 'classic') {
+      front.innerHTML = `
+        ${accentBar}
+        <div class="card-logo" style="position:absolute;top:8%;right:8%;">${logoImg}</div>
+        <div class="card-name" style="color:${s.textColor};">${s.name || 'Teljes Név'}</div>
+        <div class="card-title" style="color:${s.accentColor};">${s.title || 'Beosztás'}</div>
+        <div class="card-contacts">${contactsHTML}</div>
+      `;
+    } else if (s.layout === 'centered') {
+      front.innerHTML = `
+        <div class="card-logo">${logoImg}</div>
+        <div class="card-name">${s.name || 'Teljes Név'}</div>
+        <div class="card-title" style="color:${s.accentColor};">${s.title || 'Beosztás'}</div>
+        <div class="card-contacts">${contactsHTML}</div>
+      `;
+    } else if (s.layout === 'split') {
+      front.innerHTML = `
+        <div class="card-left" style="background:${s.accentColor}22;">
+          <div class="card-logo">${logoImg}</div>
+          <div class="card-company" style="color:${s.accentColor};">${s.company || 'Cég'}</div>
+        </div>
+        <div class="card-right">
+          <div class="card-name">${s.name || 'Teljes Név'}</div>
+          <div class="card-title" style="color:${s.accentColor};">${s.title || 'Beosztás'}</div>
+          <div class="card-contacts">${contactsHTML}</div>
+        </div>
+      `;
+    } else if (s.layout === 'minimal') {
+      front.innerHTML = `
+        <div class="card-logo">${logoImg}</div>
+        <div class="card-name">${s.name || 'Teljes Név'}</div>
+        <div class="card-title" style="color:${s.accentColor};">${s.title || 'Beosztás'}</div>
+        <div style="width:40px;height:2px;background:${s.accentColor};margin:0.5em 0 0.8em;"></div>
+        <div class="card-contacts">${contactsHTML}</div>
+      `;
+    }
+
+    // BACK content
+    const backContent = document.getElementById('back-company-text');
+    if (!backContent) return;
+    if (s.logoSrc) {
+      back.innerHTML = `<img class="card-back-logo" src="${s.logoSrc}" style="max-height:${s.logoSize*1.5}px;max-width:60%;object-fit:contain;opacity:0.85;" />`;
+    } else {
+      back.innerHTML = `<span id="back-company-text" style="font-size:clamp(1rem,3vw,1.5rem);font-weight:700;opacity:0.35;color:${s.textColor};font-family:'${s.font}',sans-serif;">${s.company || 'Cég neve'}</span>`;
+    }
+    back.style.background = front.style.background;
+  }
+
+  // DOWNLOAD
+  async function downloadCard() {
+    const wasFlipped = state.flipped;
+    if (state.flipped) flipCard();
+
+    await new Promise(r => setTimeout(r, 400));
+    const el = document.getElementById('card-face-front');
+
+    html2canvas(el, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false
+    }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'nevjegykartya.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      if (wasFlipped) flipCard();
+    });
   }
 </script>
-
 </body>
 </html>
