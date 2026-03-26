@@ -312,6 +312,221 @@
     }
     .pdf-specs strong { color: var(--gold); }
 
+    .order-btn {
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--dark); border: none; padding: 0.75rem 2.5rem;
+      border-radius: 8px; font-size: 1.05rem; font-weight: 800;
+      cursor: pointer; font-family: inherit; letter-spacing: 0.5px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+    }
+    .order-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(201,168,76,0.45); }
+
+    /* ── FUNNEL MODAL ── */
+    .funnel-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    .funnel-overlay.open { display: flex; }
+
+    .funnel-modal {
+      background: var(--dark2); border: 1px solid var(--border);
+      border-radius: 18px; width: 100%; max-width: 640px;
+      max-height: 92vh; overflow-y: auto;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    .funnel-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; color: var(--text-muted);
+      font-size: 1.5rem; cursor: pointer; z-index: 5;
+      width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; transition: background 0.2s;
+    }
+    .funnel-close:hover { background: var(--border); color: var(--text); }
+
+    /* Progress bar */
+    .funnel-progress {
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.8rem 2rem 0; gap: 0;
+    }
+    .fp-step {
+      display: flex; align-items: center; gap: 0;
+    }
+    .fp-dot {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid var(--border); background: var(--dark3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
+      transition: all 0.3s; flex-shrink: 0;
+    }
+    .fp-dot.active { border-color: var(--gold); background: var(--gold); color: var(--dark); }
+    .fp-dot.done { border-color: var(--gold); background: transparent; color: var(--gold); }
+    .fp-line {
+      width: 50px; height: 2px; background: var(--border);
+      transition: background 0.3s;
+    }
+    .fp-line.active { background: var(--gold); }
+
+    .fp-labels {
+      display: flex; justify-content: space-between;
+      padding: 0.5rem 1.2rem 0; max-width: 380px; margin: 0 auto;
+    }
+    .fp-label {
+      font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--text-muted); text-align: center; width: 60px;
+      transition: color 0.3s;
+    }
+    .fp-label.active { color: var(--gold); font-weight: 700; }
+
+    /* Funnel body */
+    .funnel-body { padding: 2rem; }
+    .funnel-step { display: none; }
+    .funnel-step.active { display: block; }
+
+    .funnel-title {
+      font-size: 1.3rem; font-weight: 800; margin-bottom: 0.4rem;
+    }
+    .funnel-desc {
+      font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.8rem;
+    }
+
+    .fn-field { margin-bottom: 1.1rem; }
+    .fn-label {
+      display: block; font-size: 0.72rem; font-weight: 700;
+      color: var(--text-muted); margin-bottom: 0.35rem;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .fn-input {
+      width: 100%; background: var(--dark3); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); padding: 0.7rem 0.9rem;
+      font-size: 0.92rem; font-family: inherit; transition: border-color 0.18s;
+    }
+    .fn-input:focus { outline: none; border-color: var(--gold); }
+    .fn-input::placeholder { color: var(--text-muted); }
+    .fn-row { display: flex; gap: 1rem; }
+    .fn-row > .fn-field { flex: 1; }
+
+    /* Card preview mini */
+    .fn-card-mini {
+      border-radius: 10px; overflow: hidden;
+      box-shadow: 0 8px 30px var(--card-shadow);
+      aspect-ratio: 1.8; max-width: 300px; margin: 0 auto 1.5rem;
+    }
+    .fn-card-mini canvas { width: 100%; height: 100%; display: block; }
+
+    /* Quantity selector */
+    .qty-options { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .qty-option {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--dark3); border: 2px solid var(--border);
+      border-radius: 10px; padding: 1rem 1.2rem; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .qty-option:hover { border-color: var(--text-muted); }
+    .qty-option.selected { border-color: var(--gold); background: var(--gold-alpha10); }
+    .qty-option.popular { position: relative; }
+    .qty-pop-badge {
+      position: absolute; top: -8px; right: 12px;
+      background: var(--gold); color: var(--dark);
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.5px;
+      padding: 0.15rem 0.5rem; border-radius: 10px; text-transform: uppercase;
+    }
+    .qty-left { display: flex; flex-direction: column; }
+    .qty-amount { font-size: 1.05rem; font-weight: 700; }
+    .qty-unit { font-size: 0.78rem; color: var(--text-muted); }
+    .qty-price { font-size: 1.2rem; font-weight: 800; color: var(--gold); }
+    .qty-per { font-size: 0.7rem; color: var(--text-muted); display: block; text-align: right; }
+
+    /* Payment form (Stripe dummy) */
+    .pay-card-wrap {
+      background: var(--dark3); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+    }
+    .pay-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.2rem;
+    }
+    .pay-card-header span { font-size: 0.85rem; font-weight: 600; }
+    .pay-card-brands { display: flex; gap: 0.4rem; font-size: 1.3rem; }
+    .pay-card-number {
+      position: relative; margin-bottom: 1rem;
+    }
+    .pay-card-number .fn-input { padding-left: 2.8rem; letter-spacing: 2px; }
+    .pay-card-icon {
+      position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%);
+      font-size: 1.1rem; color: var(--text-muted);
+    }
+    .pay-row { display: flex; gap: 1rem; }
+    .pay-row .fn-field { flex: 1; }
+
+    .pay-total-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--gold-alpha10); border: 1px solid var(--gold-alpha35);
+      border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 1.5rem;
+    }
+    .pay-total-label { font-size: 0.88rem; color: var(--text-muted); }
+    .pay-total-amount { font-size: 1.5rem; font-weight: 800; color: var(--gold); }
+
+    .pay-secure {
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+      font-size: 0.75rem; color: var(--text-muted); margin-top: 0.8rem;
+    }
+
+    /* Funnel buttons */
+    .funnel-actions {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0 2rem 2rem; gap: 1rem;
+    }
+    .fn-btn-back {
+      background: none; border: 1px solid var(--border);
+      color: var(--text-muted); padding: 0.7rem 1.5rem;
+      border-radius: 8px; font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: all 0.18s;
+    }
+    .fn-btn-back:hover { border-color: var(--gold); color: var(--gold); }
+    .fn-btn-next {
+      background: var(--gold); color: var(--dark);
+      border: none; padding: 0.7rem 2rem;
+      border-radius: 8px; font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; font-family: inherit; transition: all 0.18s;
+      margin-left: auto;
+    }
+    .fn-btn-next:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .fn-btn-next:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* SUCCESS SCREEN */
+    .success-screen { text-align: center; padding: 2rem 0 1rem; }
+    .success-icon {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.5rem; font-size: 2.2rem;
+      box-shadow: 0 8px 30px rgba(34,197,94,0.3);
+      animation: successPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+    }
+    @keyframes successPop {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .success-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .success-sub { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 2rem; max-width: 380px; margin-left: auto; margin-right: auto; }
+    .success-details {
+      background: var(--dark3); border-radius: 10px;
+      padding: 1.2rem; text-align: left; margin-bottom: 1.5rem;
+    }
+    .success-row {
+      display: flex; justify-content: space-between;
+      padding: 0.4rem 0; font-size: 0.88rem;
+    }
+    .success-row span:first-child { color: var(--text-muted); }
+    .success-row span:last-child { font-weight: 600; }
+    .success-row.total { border-top: 1px solid var(--border); margin-top: 0.5rem; padding-top: 0.7rem; }
+    .success-row.total span:last-child { color: var(--gold); font-size: 1.05rem; }
+    .success-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+
     /* ── PRODUCTS ── */
     #termekek { background: var(--dark2); }
     .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px,1fr)); gap: 1.5rem; }
@@ -609,6 +824,7 @@
           <button class="dl-btn dl-btn-pdf" onclick="downloadPDF()">⬇ Nyomdakész PDF</button>
           <button class="dl-btn dl-btn-png" onclick="downloadPNG()">PNG</button>
         </div>
+        <button class="order-btn" onclick="openFunnel()">Megrendelés →</button>
         <div class="pdf-specs">
           <strong>PDF specifikáció:</strong> CMYK színtér &middot; 300 dpi &middot; Beágyazott fontok<br>
           Vágott méret: 90&times;50 mm &middot; 3 mm kifutó &middot; Vágójelekkel &middot; Spot szín mentes
@@ -747,6 +963,165 @@
   <span class="f-logo">PremiumCard</span>
   <p>© 2025 PremiumCard – Névjegykártyák szakembereknek. Minden jog fenntartva.</p>
 </footer>
+
+<!-- ═══ ORDER FUNNEL MODAL ═══ -->
+<div class="funnel-overlay" id="funnel-overlay" onclick="if(event.target===this)closeFunnel()">
+  <div class="funnel-modal">
+    <button class="funnel-close" onclick="closeFunnel()">&times;</button>
+
+    <!-- Progress -->
+    <div class="funnel-progress" id="funnel-progress">
+      <div class="fp-step"><div class="fp-dot active" data-s="0">1</div></div>
+      <div class="fp-step"><div class="fp-line" data-l="0"></div><div class="fp-dot" data-s="1">2</div></div>
+      <div class="fp-step"><div class="fp-line" data-l="1"></div><div class="fp-dot" data-s="2">3</div></div>
+      <div class="fp-step"><div class="fp-line" data-l="2"></div><div class="fp-dot" data-s="3">4</div></div>
+    </div>
+    <div class="fp-labels">
+      <span class="fp-label active" data-sl="0">Kártya</span>
+      <span class="fp-label" data-sl="1">Adatok</span>
+      <span class="fp-label" data-sl="2">Darabszám</span>
+      <span class="fp-label" data-sl="3">Fizetés</span>
+    </div>
+
+    <!-- STEP 1: Card confirmation -->
+    <div class="funnel-body">
+      <div class="funnel-step active" data-step="0">
+        <h3 class="funnel-title">Az Ön névjegykártyája</h3>
+        <p class="funnel-desc">Ellenőrizze a kártyát, mielőtt továbblép a rendelésre.</p>
+        <div class="fn-card-mini" id="fn-card-preview"></div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;background:var(--dark3);border-radius:10px;padding:1rem;">
+          <div style="display:flex;justify-content:space-between;font-size:0.88rem;">
+            <span style="color:var(--text-muted);">Név</span>
+            <span style="font-weight:600;" id="fn-sum-name">–</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.88rem;">
+            <span style="color:var(--text-muted);">Beosztás</span>
+            <span style="font-weight:600;" id="fn-sum-title">–</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.88rem;">
+            <span style="color:var(--text-muted);">Cég</span>
+            <span style="font-weight:600;" id="fn-sum-company">–</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.88rem;">
+            <span style="color:var(--text-muted);">Elrendezés</span>
+            <span style="font-weight:600;" id="fn-sum-layout">–</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Billing data -->
+      <div class="funnel-step" data-step="1">
+        <h3 class="funnel-title">Számlázási adatok</h3>
+        <p class="funnel-desc">Kérjük, adja meg a szállításhoz és számlázáshoz szükséges adatokat.</p>
+        <div class="fn-row">
+          <div class="fn-field"><label class="fn-label">Vezetéknév *</label><input class="fn-input" id="fn-lname" placeholder="Kovács" required /></div>
+          <div class="fn-field"><label class="fn-label">Keresztnév *</label><input class="fn-input" id="fn-fname" placeholder="Péter" required /></div>
+        </div>
+        <div class="fn-field"><label class="fn-label">E-mail cím *</label><input class="fn-input" type="email" id="fn-email" placeholder="pelda@email.hu" required /></div>
+        <div class="fn-field"><label class="fn-label">Telefonszám *</label><input class="fn-input" type="tel" id="fn-phone" placeholder="+36 30 000 0000" required /></div>
+        <hr class="ed-sep">
+        <div class="fn-field"><label class="fn-label">Cégnév (opcionális)</label><input class="fn-input" id="fn-company" placeholder="Kovács Kft." /></div>
+        <div class="fn-field"><label class="fn-label">Adószám (opcionális)</label><input class="fn-input" id="fn-taxid" placeholder="12345678-1-23" /></div>
+        <div class="fn-field"><label class="fn-label">Szállítási cím *</label><input class="fn-input" id="fn-addr" placeholder="1234 Budapest, Példa utca 1." required /></div>
+        <div class="fn-row">
+          <div class="fn-field"><label class="fn-label">Irányítószám *</label><input class="fn-input" id="fn-zip" placeholder="1234" required /></div>
+          <div class="fn-field"><label class="fn-label">Város *</label><input class="fn-input" id="fn-city" placeholder="Budapest" required /></div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Quantity -->
+      <div class="funnel-step" data-step="2">
+        <h3 class="funnel-title">Darabszám kiválasztása</h3>
+        <p class="funnel-desc">Válassza ki a kívánt mennyiséget – nagyobb tételnél kedvezőbb árat adunk.</p>
+        <div class="qty-options">
+          <div class="qty-option" onclick="selectQty(this,50,3900)">
+            <div class="qty-left"><span class="qty-amount">50 db</span><span class="qty-unit">névjegykártya</span></div>
+            <div><span class="qty-price">3 900 Ft</span><span class="qty-per">78 Ft/db</span></div>
+          </div>
+          <div class="qty-option popular selected" onclick="selectQty(this,100,5900)">
+            <div class="qty-pop-badge">Népszerű</div>
+            <div class="qty-left"><span class="qty-amount">100 db</span><span class="qty-unit">névjegykártya</span></div>
+            <div><span class="qty-price">5 900 Ft</span><span class="qty-per">59 Ft/db</span></div>
+          </div>
+          <div class="qty-option" onclick="selectQty(this,250,11900)">
+            <div class="qty-left"><span class="qty-amount">250 db</span><span class="qty-unit">névjegykártya</span></div>
+            <div><span class="qty-price">11 900 Ft</span><span class="qty-per">47,6 Ft/db</span></div>
+          </div>
+          <div class="qty-option" onclick="selectQty(this,500,18900)">
+            <div class="qty-left"><span class="qty-amount">500 db</span><span class="qty-unit">névjegykártya</span></div>
+            <div><span class="qty-price">18 900 Ft</span><span class="qty-per">37,8 Ft/db</span></div>
+          </div>
+          <div class="qty-option" onclick="selectQty(this,1000,29900)">
+            <div class="qty-left"><span class="qty-amount">1 000 db</span><span class="qty-unit">névjegykártya</span></div>
+            <div><span class="qty-price">29 900 Ft</span><span class="qty-per">29,9 Ft/db</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Payment (Stripe dummy) -->
+      <div class="funnel-step" data-step="3">
+        <h3 class="funnel-title">Fizetés</h3>
+        <p class="funnel-desc">Adja meg bankkártya adatait a biztonságos fizetéshez.</p>
+
+        <div class="pay-total-bar">
+          <span class="pay-total-label">Fizetendő összeg:</span>
+          <span class="pay-total-amount" id="pay-total">5 900 Ft</span>
+        </div>
+
+        <div class="pay-card-wrap">
+          <div class="pay-card-header">
+            <span>Bankkártya adatok</span>
+            <div class="pay-card-brands">
+              <span title="Visa">💳</span>
+            </div>
+          </div>
+          <div class="pay-card-number fn-field">
+            <span class="pay-card-icon">💳</span>
+            <input class="fn-input" id="pay-cardnum" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCardNum(this)" />
+          </div>
+          <div class="fn-field">
+            <label class="fn-label">Kártyán szereplő név</label>
+            <input class="fn-input" id="pay-name" placeholder="KOVACS PETER" style="text-transform:uppercase;" />
+          </div>
+          <div class="pay-row">
+            <div class="fn-field"><label class="fn-label">Lejárat</label><input class="fn-input" id="pay-exp" placeholder="MM/ÉÉ" maxlength="5" oninput="formatExp(this)" /></div>
+            <div class="fn-field"><label class="fn-label">CVC</label><input class="fn-input" id="pay-cvc" placeholder="123" maxlength="3" type="password" /></div>
+          </div>
+        </div>
+
+        <div class="pay-secure">🔒 A fizetés SSL titkosítással védett. Az adatait nem tároljuk.</div>
+      </div>
+
+      <!-- STEP 5: Success (hidden, replaces all) -->
+      <div class="funnel-step" data-step="4">
+        <div class="success-screen">
+          <div class="success-icon">✓</div>
+          <h3 class="success-title">Sikeres fizetés!</h3>
+          <p class="success-sub">Köszönjük megrendelését! Visszaigazoló e-mailt küldtünk a megadott címre. Kártyáit hamarosan elkészítjük.</p>
+          <div class="success-details">
+            <div class="success-row"><span>Rendelésszám</span><span id="suc-orderid">–</span></div>
+            <div class="success-row"><span>Név</span><span id="suc-name">–</span></div>
+            <div class="success-row"><span>Szállítási cím</span><span id="suc-addr">–</span></div>
+            <div class="success-row"><span>Darabszám</span><span id="suc-qty">–</span></div>
+            <div class="success-row"><span>Várható szállítás</span><span id="suc-delivery">–</span></div>
+            <div class="success-row total"><span>Fizetett összeg</span><span id="suc-total">–</span></div>
+          </div>
+          <div class="success-actions">
+            <button class="dl-btn dl-btn-pdf" onclick="downloadPDF()" style="font-size:0.85rem;">⬇ Terv letöltése (PDF)</button>
+            <button class="fn-btn-back" onclick="closeFunnel()">Vissza az oldalra</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action buttons (hidden on success) -->
+    <div class="funnel-actions" id="funnel-actions">
+      <button class="fn-btn-back" id="fn-back" onclick="funnelBack()" style="visibility:hidden;">← Vissza</button>
+      <button class="fn-btn-next" id="fn-next" onclick="funnelNext()">Tovább →</button>
+    </div>
+
+  </div>
+</div>
 
 <script>
   /* ══════════════════════════════════════════
@@ -1369,6 +1744,200 @@
       document.getElementById('theme-btn').textContent='🌙';
     }
   })();
+
+  /* ══════════════════════════════════════════
+     ORDER FUNNEL
+     ══════════════════════════════════════════ */
+  let funnelStep=0;
+  let orderQty=100;
+  let orderPrice=5900;
+
+  function openFunnel(){
+    funnelStep=0;
+    updateFunnelUI();
+    document.getElementById('funnel-overlay').classList.add('open');
+    document.body.style.overflow='hidden';
+
+    // Fill card summary
+    document.getElementById('fn-sum-name').textContent=S.name||'–';
+    document.getElementById('fn-sum-title').textContent=S.title||'–';
+    document.getElementById('fn-sum-company').textContent=S.company||'–';
+    const layoutNames={classic:'Klasszikus',centered:'Középre zárt',split:'Osztott',minimal:'Minimál'};
+    document.getElementById('fn-sum-layout').textContent=layoutNames[S.layout]||S.layout;
+
+    // Render card mini preview
+    renderMiniPreview();
+
+    // Pre-fill from editor
+    if(S.email)document.getElementById('fn-email').value=S.email;
+    if(S.phone)document.getElementById('fn-phone').value=S.phone;
+  }
+
+  function closeFunnel(){
+    document.getElementById('funnel-overlay').classList.remove('open');
+    document.body.style.overflow='';
+  }
+
+  function renderMiniPreview(){
+    const container=document.getElementById('fn-card-preview');
+    html2canvas(document.getElementById('card-face-front'),{
+      scale:2,useCORS:true,backgroundColor:null,logging:false
+    }).then(canvas=>{
+      container.innerHTML='';
+      canvas.style.width='100%';
+      canvas.style.height='100%';
+      canvas.style.display='block';
+      container.appendChild(canvas);
+    });
+  }
+
+  function selectQty(el,qty,price){
+    document.querySelectorAll('.qty-option').forEach(o=>o.classList.remove('selected'));
+    el.classList.add('selected');
+    orderQty=qty;
+    orderPrice=price;
+    document.getElementById('pay-total').textContent=formatPrice(price)+' Ft';
+  }
+
+  function formatPrice(n){
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  }
+
+  function funnelNext(){
+    // Validate current step
+    if(funnelStep===1){
+      const required=['fn-lname','fn-fname','fn-email','fn-phone','fn-addr','fn-zip','fn-city'];
+      let valid=true;
+      required.forEach(id=>{
+        const el=document.getElementById(id);
+        if(!el.value.trim()){
+          el.style.borderColor='#ef4444';
+          valid=false;
+          el.addEventListener('input',()=>{el.style.borderColor='';},{once:true});
+        }
+      });
+      if(!valid)return;
+    }
+
+    if(funnelStep===3){
+      // Simulate payment
+      processPayment();
+      return;
+    }
+
+    funnelStep++;
+    updateFunnelUI();
+  }
+
+  function funnelBack(){
+    if(funnelStep>0){
+      funnelStep--;
+      updateFunnelUI();
+    }
+  }
+
+  function updateFunnelUI(){
+    // Steps
+    document.querySelectorAll('.funnel-step').forEach(s=>{
+      s.classList.toggle('active',parseInt(s.dataset.step)===funnelStep);
+    });
+
+    // Progress dots
+    document.querySelectorAll('.fp-dot').forEach(d=>{
+      const si=parseInt(d.dataset.s);
+      d.classList.remove('active','done');
+      if(si===funnelStep)d.classList.add('active');
+      else if(si<funnelStep){d.classList.add('done');d.textContent='✓';}
+      else d.textContent=si+1;
+    });
+
+    // Progress lines
+    document.querySelectorAll('.fp-line').forEach(l=>{
+      l.classList.toggle('active',parseInt(l.dataset.l)<funnelStep);
+    });
+
+    // Labels
+    document.querySelectorAll('.fp-label').forEach(l=>{
+      l.classList.toggle('active',parseInt(l.dataset.sl)===funnelStep);
+    });
+
+    // Buttons
+    const backBtn=document.getElementById('fn-back');
+    const nextBtn=document.getElementById('fn-next');
+    const actionsDiv=document.getElementById('funnel-actions');
+
+    if(funnelStep===4){
+      // Success screen – hide actions
+      actionsDiv.style.display='none';
+      document.querySelector('.funnel-progress').style.display='none';
+      document.querySelector('.fp-labels').style.display='none';
+      return;
+    }
+
+    actionsDiv.style.display='flex';
+    document.querySelector('.funnel-progress').style.display='flex';
+    document.querySelector('.fp-labels').style.display='flex';
+
+    backBtn.style.visibility=funnelStep>0?'visible':'hidden';
+
+    if(funnelStep===3){
+      nextBtn.textContent='Fizetés →';
+      nextBtn.style.background='linear-gradient(135deg, #22c55e, #16a34a)';
+      nextBtn.style.color='#fff';
+    }else{
+      nextBtn.textContent='Tovább →';
+      nextBtn.style.background='';
+      nextBtn.style.color='';
+    }
+  }
+
+  function processPayment(){
+    const nextBtn=document.getElementById('fn-next');
+    nextBtn.disabled=true;
+    nextBtn.textContent='Feldolgozás...';
+
+    // Simulate payment processing
+    setTimeout(()=>{
+      nextBtn.disabled=false;
+      funnelStep=4;
+      updateFunnelUI();
+      fillSuccess();
+    },2000);
+  }
+
+  function fillSuccess(){
+    const orderId='PC-'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).substring(2,5).toUpperCase();
+    const lname=document.getElementById('fn-lname').value;
+    const fname=document.getElementById('fn-fname').value;
+    const addr=document.getElementById('fn-addr').value;
+    const city=document.getElementById('fn-city').value;
+    const zip=document.getElementById('fn-zip').value;
+
+    // Delivery estimate: 3-5 business days from now
+    const d=new Date();
+    d.setDate(d.getDate()+5);
+    const delivery=d.toLocaleDateString('hu-HU',{year:'numeric',month:'long',day:'numeric'});
+
+    document.getElementById('suc-orderid').textContent=orderId;
+    document.getElementById('suc-name').textContent=lname+' '+fname;
+    document.getElementById('suc-addr').textContent=zip+' '+city+', '+addr;
+    document.getElementById('suc-qty').textContent=formatPrice(orderQty)+' db';
+    document.getElementById('suc-delivery').textContent='~ '+delivery;
+    document.getElementById('suc-total').textContent=formatPrice(orderPrice)+' Ft';
+  }
+
+  // Card number formatting
+  function formatCardNum(el){
+    let v=el.value.replace(/\D/g,'').substring(0,16);
+    el.value=v.replace(/(\d{4})(?=\d)/g,'$1 ');
+  }
+
+  // Expiry formatting
+  function formatExp(el){
+    let v=el.value.replace(/\D/g,'').substring(0,4);
+    if(v.length>=3)v=v.substring(0,2)+'/'+v.substring(2);
+    el.value=v;
+  }
 </script>
 </body>
 </html>
