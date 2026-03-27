@@ -6,7 +6,7 @@
   <title>PremiumCard – Névjegykártyák szakembereknek</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1313,6 +1313,7 @@
 
   // RGB hex → CMYK (0-1 range)
   function hexToCMYK(hex){
+    if(!hex||hex.length<7)hex='#000000';
     const r=parseInt(hex.slice(1,3),16)/255;
     const g=parseInt(hex.slice(3,5),16)/255;
     const b=parseInt(hex.slice(5,7),16)/255;
@@ -1321,7 +1322,7 @@
     return[(1-r-k)/(1-k),(1-g-k)/(1-k),(1-b-k)/(1-k),k];
   }
 
-  // Mix two hex colors, return hex
+  // Mix two hex colors
   function mixHex(h1,h2,t){
     const r=Math.round(parseInt(h1.slice(1,3),16)*(1-t)+parseInt(h2.slice(1,3),16)*t);
     const g=Math.round(parseInt(h1.slice(3,5),16)*(1-t)+parseInt(h2.slice(3,5),16)*t);
@@ -1329,108 +1330,97 @@
     return'#'+[r,g,b].map(x=>Math.min(255,Math.max(0,x)).toString(16).padStart(2,'0')).join('');
   }
 
-  function hexToRGB(hex){
-    return[parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];
+  // ── jsPDF native CMYK helpers (4-arg API: 0-255 range) ──
+  function fillCMYK(doc,hex){
+    const[c,m,y,k]=hexToCMYK(hex);
+    doc.setFillColor(Math.round(c*255),Math.round(m*255),Math.round(y*255),Math.round(k*255));
+  }
+  function textCMYK(doc,hex){
+    const[c,m,y,k]=hexToCMYK(hex);
+    doc.setTextColor(Math.round(c*255),Math.round(m*255),Math.round(y*255),Math.round(k*255));
+  }
+  function strokeCMYK(doc,hex){
+    const[c,m,y,k]=hexToCMYK(hex);
+    doc.setDrawColor(Math.round(c*255),Math.round(m*255),Math.round(y*255),Math.round(k*255));
   }
 
-  // Write CMYK fill color into PDF stream
-  function cmykFill(doc,hex){
-    const[c,m,y,k]=hexToCMYK(hex);
-    doc.internal.write(c.toFixed(4)+' '+m.toFixed(4)+' '+y.toFixed(4)+' '+k.toFixed(4)+' k');
-  }
-  // Write CMYK stroke color
-  function cmykStroke(doc,hex){
-    const[c,m,y,k]=hexToCMYK(hex);
-    doc.internal.write(c.toFixed(4)+' '+m.toFixed(4)+' '+y.toFixed(4)+' '+k.toFixed(4)+' K');
-  }
-  // Draw filled rect using raw PDF ops (CMYK)
-  function cmykRect(doc,x,y,w,h,hex){
-    cmykFill(doc,hex);
-    // Convert mm to pt (1mm = 2.8346pt), but jsPDF in mm mode handles this
+  // Draw filled rect in CMYK
+  function rectCMYK(doc,x,y,w,h,hex){
+    fillCMYK(doc,hex);
     doc.rect(x,y,w,h,'F');
   }
 
-  // Font mapping to PDF built-in fonts
+  // Font mapping
   function pdfFont(fontName){
     const map={'Inter':'helvetica','Playfair Display':'times','Montserrat':'helvetica','Roboto':'helvetica','Lato':'helvetica'};
     return map[fontName]||'helvetica';
   }
 
-  // Draw gradient background via strips (CMYK)
+  // Draw gradient via strips
   function drawGradientBg(doc,x,y,w,h,color1,color2,style){
-    const strips=120;
-    if(style==='gradient'){
-      // top to bottom: color1 at top, color2 at bottom
+    const strips=100;
+    if(style==='gradient'||style==='gradient-diag'){
       const stripH=h/strips;
       for(let i=0;i<strips;i++){
         const t=i/(strips-1);
-        cmykRect(doc,x,y+i*stripH,w,stripH+0.05,mixHex(color1,color2,t));
-      }
-    }else if(style==='gradient-diag'){
-      // diagonal: approximate with horizontal strips blended
-      const stripH=h/strips;
-      for(let i=0;i<strips;i++){
-        const t=i/(strips-1);
-        cmykRect(doc,x,y+i*stripH,w,stripH+0.05,mixHex(color1,color2,t));
+        rectCMYK(doc,x,y+i*stripH,w,stripH+0.1,mixHex(color1,color2,t));
       }
     }else if(style==='gradient-radial'){
-      // radial: approximate center→edge
-      // draw concentric rects from outside in
-      const maxDim=Math.max(w,h);
       const cx=x+w/2, cy=y+h/2;
       for(let i=0;i<strips;i++){
-        const t=1-i/(strips-1); // outside to inside
+        const t=1-i/(strips-1);
         const s=(strips-i)/strips;
         const rw=w*s, rh=h*s;
-        cmykRect(doc,cx-rw/2,cy-rh/2,rw,rh,mixHex(color1,color2,t));
+        rectCMYK(doc,cx-rw/2,cy-rh/2,rw,rh,mixHex(color1,color2,t));
       }
     }
   }
 
-  // Draw crop marks
+  // Draw crop marks (pure K=1 black)
   function drawCropMarks(doc,trimX,trimY,trimW,trimH,markLen,gap){
     doc.setLineWidth(0.2);
-    cmykStroke(doc,'#000000'); // K=1 pure black
+    strokeCMYK(doc,'#000000');
 
     const tx2=trimX+trimW, ty2=trimY+trimH;
 
     // Top-left
-    doc.line(trimX-gap-markLen, trimY, trimX-gap, trimY);
-    doc.line(trimX, trimY-gap-markLen, trimX, trimY-gap);
+    doc.line(trimX-gap-markLen,trimY,trimX-gap,trimY);
+    doc.line(trimX,trimY-gap-markLen,trimX,trimY-gap);
     // Top-right
-    doc.line(tx2+gap, trimY, tx2+gap+markLen, trimY);
-    doc.line(tx2, trimY-gap-markLen, tx2, trimY-gap);
+    doc.line(tx2+gap,trimY,tx2+gap+markLen,trimY);
+    doc.line(tx2,trimY-gap-markLen,tx2,trimY-gap);
     // Bottom-left
-    doc.line(trimX-gap-markLen, ty2, trimX-gap, ty2);
-    doc.line(trimX, ty2+gap, trimX, ty2+gap+markLen);
+    doc.line(trimX-gap-markLen,ty2,trimX-gap,ty2);
+    doc.line(trimX,ty2+gap,trimX,ty2+gap+markLen);
     // Bottom-right
-    doc.line(tx2+gap, ty2, tx2+gap+markLen, ty2);
-    doc.line(tx2, ty2+gap, tx2, ty2+gap+markLen);
+    doc.line(tx2+gap,ty2,tx2+gap+markLen,ty2);
+    doc.line(tx2,ty2+gap,tx2,ty2+gap+markLen);
   }
 
-  // Get logo image dimensions from data URL
+  // Logo helpers
   function getImageDims(src){
-    return new Promise(resolve=>{
+    return new Promise((resolve,reject)=>{
       const img=new Image();
       img.onload=()=>resolve({w:img.naturalWidth,h:img.naturalHeight});
+      img.onerror=reject;
       img.src=src;
     });
   }
 
-  // Detect image format from data URL
   function imgFormat(src){
+    if(!src)return'PNG';
     if(src.includes('image/png'))return'PNG';
-    if(src.includes('image/svg'))return'PNG'; // will render via canvas
+    if(src.includes('image/svg'))return'PNG';
     return'JPEG';
   }
 
-  // Draw a single card side to PDF
+  // Draw card side
   async function drawCardSide(doc,trimX,trimY,trimW,trimH,bleed,isFront){
     const bx=trimX-bleed, by=trimY-bleed, bw=trimW+2*bleed, bh=trimH+2*bleed;
 
     // Background
     if(S.bgStyle==='solid'){
-      cmykRect(doc,bx,by,bw,bh,S.bgColor);
+      rectCMYK(doc,bx,by,bw,bh,S.bgColor);
     }else{
       drawGradientBg(doc,bx,by,bw,bh,S.bgColor,S.bgColor2,S.bgStyle);
     }
@@ -1444,126 +1434,95 @@
 
   async function drawFrontContent(doc,tx,ty,tw,th){
     const font=pdfFont(S.font);
-    const pad=tw*0.08; // 8% padding ≈ 7.2mm
-
-    // Helper: set CMYK text color then use jsPDF text
-    function textCMYK(str,x,y,opts){
-      if(!str)return;
-      doc.text(str,x,y,opts||{});
-    }
+    const pad=tw*0.08;
 
     if(S.layout==='classic'){
-      // Accent bar on left
-      cmykRect(doc,tx,ty,0.8,th,S.accentColor);
+      // Accent bar
+      rectCMYK(doc,tx,ty,0.8,th,S.accentColor);
 
       // Logo
-      if(S.logoSrc){
-        await drawLogo(doc,tx+tw-pad,ty+pad*0.5,'right');
-      }
+      if(S.logoSrc) await drawLogo(doc,tx+tw-pad,ty+pad*0.5,'right');
 
-      // Name at bottom area
+      // Name
       const nameY=ty+th*0.6;
       doc.setFont(font,'bold');
       doc.setFontSize(14);
-      cmykFill(doc,S.textColor);
-      textCMYK(S.name||'Teljes Nev',tx+pad,nameY);
+      textCMYK(doc,S.textColor);
+      doc.text(S.name||'Teljes Nev',tx+pad,nameY);
 
       // Title
       doc.setFont(font,'normal');
       doc.setFontSize(9);
-      cmykFill(doc,S.accentColor);
-      textCMYK(S.title||'Beosztas',tx+pad,nameY+5);
+      textCMYK(doc,S.accentColor);
+      doc.text(S.title||'Beosztas',tx+pad,nameY+5);
 
       // Contacts
-      doc.setFont(font,'normal');
       doc.setFontSize(7);
-      cmykFill(doc,S.textColor);
-      let cy=nameY+11;
-      drawContacts(doc,tx+pad,cy,font);
+      drawContacts(doc,tx+pad,nameY+11,font);
 
     }else if(S.layout==='centered'){
       const cx=tx+tw/2;
-
-      if(S.logoSrc){
-        await drawLogo(doc,cx,ty+pad*1.5,'center');
-      }
+      if(S.logoSrc) await drawLogo(doc,cx,ty+pad*1.5,'center');
 
       const nameY=ty+th*0.38+(S.logoSrc?4:0);
       doc.setFont(font,'bold');
       doc.setFontSize(14);
-      cmykFill(doc,S.textColor);
-      textCMYK(S.name||'Teljes Nev',cx,nameY,{align:'center'});
+      textCMYK(doc,S.textColor);
+      doc.text(S.name||'Teljes Nev',cx,nameY,{align:'center'});
 
       doc.setFont(font,'normal');
       doc.setFontSize(9);
-      cmykFill(doc,S.accentColor);
-      textCMYK(S.title||'Beosztas',cx,nameY+5,{align:'center'});
+      textCMYK(doc,S.accentColor);
+      doc.text(S.title||'Beosztas',cx,nameY+5,{align:'center'});
 
-      doc.setFont(font,'normal');
       doc.setFontSize(7);
-      cmykFill(doc,S.textColor);
-      let cy=nameY+11;
-      drawContactsCentered(doc,cx,cy,font);
+      drawContactsCentered(doc,cx,nameY+11,font);
 
     }else if(S.layout==='split'){
-      // Left panel
       const leftW=tw*0.38;
-      // Accent bg with transparency simulation
       const accentFaded=mixHex(S.bgColor,S.accentColor,0.15);
-      cmykRect(doc,tx,ty,leftW,th,accentFaded);
+      rectCMYK(doc,tx,ty,leftW,th,accentFaded);
 
-      // Logo in left center
-      if(S.logoSrc){
-        await drawLogo(doc,tx+leftW/2,ty+th*0.35,'center');
-      }
+      if(S.logoSrc) await drawLogo(doc,tx+leftW/2,ty+th*0.35,'center');
 
-      // Company in left
       doc.setFont(font,'bold');
       doc.setFontSize(9);
-      cmykFill(doc,S.accentColor);
-      textCMYK(S.company||'Ceg',tx+leftW/2,ty+th*0.55+(S.logoSrc?4:0),{align:'center'});
+      textCMYK(doc,S.accentColor);
+      doc.text(S.company||'Ceg',tx+leftW/2,ty+th*0.55+(S.logoSrc?4:0),{align:'center'});
 
-      // Right content
       const rx=tx+leftW+pad*0.8;
       const nameY=ty+th*0.35;
       doc.setFont(font,'bold');
       doc.setFontSize(12);
-      cmykFill(doc,S.textColor);
-      textCMYK(S.name||'Teljes Nev',rx,nameY);
+      textCMYK(doc,S.textColor);
+      doc.text(S.name||'Teljes Nev',rx,nameY);
 
       doc.setFont(font,'normal');
       doc.setFontSize(8);
-      cmykFill(doc,S.accentColor);
-      textCMYK(S.title||'Beosztas',rx,nameY+4.5);
+      textCMYK(doc,S.accentColor);
+      doc.text(S.title||'Beosztas',rx,nameY+4.5);
 
-      doc.setFont(font,'normal');
       doc.setFontSize(6.5);
-      cmykFill(doc,S.textColor);
       drawContacts(doc,rx,nameY+10,font);
 
     }else if(S.layout==='minimal'){
-      if(S.logoSrc){
-        await drawLogo(doc,tx+pad,ty+pad,'left');
-      }
+      if(S.logoSrc) await drawLogo(doc,tx+pad,ty+pad,'left');
 
       const nameY=ty+th*0.38+(S.logoSrc?4:0);
       doc.setFont(font,'bold');
       doc.setFontSize(15);
-      cmykFill(doc,S.textColor);
-      textCMYK(S.name||'Teljes Nev',tx+pad,nameY);
+      textCMYK(doc,S.textColor);
+      doc.text(S.name||'Teljes Nev',tx+pad,nameY);
 
       doc.setFont(font,'normal');
       doc.setFontSize(8);
-      cmykFill(doc,S.accentColor);
-      const titleText=(S.title||'Beosztas').toUpperCase();
-      textCMYK(titleText,tx+pad,nameY+5.5);
+      textCMYK(doc,S.accentColor);
+      doc.text((S.title||'Beosztas').toUpperCase(),tx+pad,nameY+5.5);
 
       // Accent line
-      cmykRect(doc,tx+pad,nameY+8,15,0.6,S.accentColor);
+      rectCMYK(doc,tx+pad,nameY+8,15,0.6,S.accentColor);
 
-      doc.setFont(font,'normal');
       doc.setFontSize(7);
-      cmykFill(doc,S.textColor);
       drawContacts(doc,tx+pad,nameY+13,font);
     }
   }
@@ -1581,12 +1540,13 @@
       const y=startY+i*3.5;
 
       doc.setFont(font,'bold');
-      cmykFill(doc,S.accentColor);
+      textCMYK(doc,S.accentColor);
       doc.text(prefix,x,y);
 
+      const pw=doc.getTextWidth(prefix);
       doc.setFont(font,'normal');
-      cmykFill(doc,S.textColor);
-      doc.text(rest,x+doc.getTextWidth(prefix)+0.3,y);
+      textCMYK(doc,S.textColor);
+      doc.text(rest,x+pw+0.3,y);
     });
   }
 
@@ -1598,10 +1558,9 @@
     if(S.address)contacts.push('A: '+S.address);
 
     contacts.forEach((c,i)=>{
-      const y=startY+i*3.5;
       doc.setFont(font,'normal');
-      cmykFill(doc,S.textColor);
-      doc.text(c,cx,y,{align:'center'});
+      textCMYK(doc,S.textColor);
+      doc.text(c,cx,startY+i*3.5,{align:'center'});
     });
   }
 
@@ -1610,15 +1569,12 @@
     try{
       const dims=await getImageDims(S.logoSrc);
       const ratio=dims.w/dims.h;
-      // Logo size in mm (based on S.logoSize, mapped from px to mm roughly)
-      const logoH=S.logoSize*0.22; // ~10mm for 45px
+      const logoH=S.logoSize*0.22;
       const logoW=logoH*ratio;
       const fmt=imgFormat(S.logoSrc);
-
       let lx=x, ly=y;
-      if(align==='center'){lx=x-logoW/2; ly=y-logoH/2;}
+      if(align==='center'){lx=x-logoW/2;ly=y-logoH/2;}
       else if(align==='right'){lx=x-logoW;}
-
       doc.addImage(S.logoSrc,fmt,lx,ly,logoW,logoH);
     }catch(e){console.warn('Logo embed failed:',e);}
   }
@@ -1633,68 +1589,69 @@
         const ratio=dims.w/dims.h;
         const logoH=S.logoSize*0.35;
         const logoW=logoH*ratio;
-        const fmt=imgFormat(S.logoSrc);
-        doc.addImage(S.logoSrc,fmt,cx-logoW/2,cy-logoH/2,logoW,logoH);
+        doc.addImage(S.logoSrc,imgFormat(S.logoSrc),cx-logoW/2,cy-logoH/2,logoW,logoH);
       }catch(e){}
     }else{
       doc.setFont(font,'bold');
       doc.setFontSize(16);
-      // Faded text: mix bg and text color
-      const fadedColor=mixHex(S.bgColor,S.textColor,0.3);
-      cmykFill(doc,fadedColor);
+      textCMYK(doc,mixHex(S.bgColor,S.textColor,0.3));
       doc.text(S.company||'Ceg neve',cx,cy,{align:'center'});
     }
   }
 
   /* ── MAIN PDF DOWNLOAD ── */
   async function downloadPDF(){
+    if(!window.jspdf||!window.jspdf.jsPDF){
+      alert('PDF könyvtár betöltése sikertelen. Kérjük, frissítse az oldalt.');
+      return;
+    }
     const{jsPDF}=window.jspdf;
 
-    // Dimensions in mm
-    const trimW=90, trimH=50;
-    const bleed=3;
-    const markMargin=5; // extra space for crop marks outside bleed
-    const markLen=4;    // length of crop mark lines
-    const markGap=1;    // gap between mark and bleed edge
+    try{
+      // Dimensions
+      const trimW=90, trimH=50;
+      const bleed=3;
+      const markMargin=5;
+      const markLen=4;
+      const markGap=1;
 
-    const pageW=trimW+2*bleed+2*markMargin; // 106mm
-    const pageH=trimH+2*bleed+2*markMargin; // 66mm
-    const trimX=markMargin+bleed; // 8mm
-    const trimY=markMargin+bleed; // 8mm
+      const pageW=trimW+2*bleed+2*markMargin; // 106mm
+      const pageH=trimH+2*bleed+2*markMargin; // 66mm
+      const trimX=markMargin+bleed; // 8mm
+      const trimY=markMargin+bleed; // 8mm
 
-    const doc=new jsPDF({
-      orientation:'landscape',
-      unit:'mm',
-      format:[pageW,pageH],
-      compress:true
-    });
+      const doc=new jsPDF({
+        orientation:'landscape',
+        unit:'mm',
+        format:[pageW,pageH],
+        compress:true
+      });
 
-    // Set PDF metadata
-    doc.setProperties({
-      title:'Névjegykártya - '+( S.name||'PremiumCard'),
-      subject:'Nyomdakész névjegykártya - CMYK composite',
-      creator:'PremiumCard Editor',
-      keywords:'CMYK, 300dpi, composite, névjegykártya'
-    });
+      doc.setProperties({
+        title:'Nevjegykartya - '+(S.name||'PremiumCard'),
+        subject:'Nyomdakesz nevjegykartya - CMYK composite',
+        creator:'PremiumCard Editor',
+        keywords:'CMYK, 300dpi, composite, nevjegykartya'
+      });
 
-    // ── PAGE 1: FRONT ──
-    // White page bg (outside bleed = paper)
-    doc.setFillColor(255,255,255);
-    doc.rect(0,0,pageW,pageH,'F');
+      // PAGE 1: FRONT
+      doc.setFillColor(255,255,255);
+      doc.rect(0,0,pageW,pageH,'F');
+      await drawCardSide(doc,trimX,trimY,trimW,trimH,bleed,true);
+      drawCropMarks(doc,trimX,trimY,trimW,trimH,markLen,markGap);
 
-    await drawCardSide(doc,trimX,trimY,trimW,trimH,bleed,true);
-    drawCropMarks(doc,trimX,trimY,trimW,trimH,markLen,markGap);
+      // PAGE 2: BACK
+      doc.addPage([pageW,pageH],'landscape');
+      doc.setFillColor(255,255,255);
+      doc.rect(0,0,pageW,pageH,'F');
+      await drawCardSide(doc,trimX,trimY,trimW,trimH,bleed,false);
+      drawCropMarks(doc,trimX,trimY,trimW,trimH,markLen,markGap);
 
-    // ── PAGE 2: BACK ──
-    doc.addPage([pageW,pageH],'landscape');
-    doc.setFillColor(255,255,255);
-    doc.rect(0,0,pageW,pageH,'F');
-
-    await drawCardSide(doc,trimX,trimY,trimW,trimH,bleed,false);
-    drawCropMarks(doc,trimX,trimY,trimW,trimH,markLen,markGap);
-
-    // Save
-    doc.save('nevjegykartya-nyomdakesz.pdf');
+      doc.save('nevjegykartya-nyomdakesz.pdf');
+    }catch(err){
+      console.error('PDF generation error:',err);
+      alert('Hiba történt a PDF generálás során: '+err.message);
+    }
   }
 
   /* ══════════════════════════════════════════
