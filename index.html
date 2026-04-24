@@ -169,7 +169,7 @@
     .ed-tab:hover { color: var(--text); }
     .ed-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
 
-    .ed-panels { flex: 1; overflow-y: auto; max-height: 520px; }
+    .ed-panels { flex: 1; overflow-y: auto; max-height: min(620px, calc(100vh - 200px)); }
     .ed-panel { display: none; padding: 1.4rem; }
     .ed-panel.active { display: block; }
 
@@ -1261,11 +1261,11 @@
     const logoImg=S.logoSrc?`<img src="${S.logoSrc}" style="max-height:${S.logoSize}px;max-width:${S.logoSize*2.2}px;object-fit:contain;"/>`:'';
 
     const ctcs=[];
-    if(S.phone)ctcs.push({i:'T:',v:S.phone});
-    if(S.email)ctcs.push({i:'E:',v:S.email});
-    if(S.web)ctcs.push({i:'W:',v:S.web});
-    if(S.address)ctcs.push({i:'A:',v:S.address});
-    const ctcHTML=ctcs.map(c=>`<span class="cl-ci"><span style="color:${S.accentColor};font-weight:600;min-width:1.4em;">${c.i}</span><span>${c.v}</span></span>`).join('');
+    if(S.phone)ctcs.push({i:'📞',v:S.phone});
+    if(S.email)ctcs.push({i:'✉️',v:S.email});
+    if(S.web)ctcs.push({i:'🌐',v:S.web});
+    if(S.address)ctcs.push({i:'📍',v:S.address});
+    const ctcHTML=ctcs.map(c=>`<span class="cl-ci"><span style="min-width:1.2em;font-size:0.9em;">${c.i}</span><span>${c.v}</span></span>`).join('');
 
     const accentBar=`<div style="width:3px;height:100%;background:${S.accentColor};position:absolute;left:0;top:0;border-radius:2px 0 0 2px;"></div>`;
 
@@ -1533,33 +1533,29 @@
 
   function drawContacts(doc,x,startY,font){
     const contacts=[];
-    if(S.phone)contacts.push('T: '+S.phone);
-    if(S.email)contacts.push('E: '+S.email);
-    if(S.web)contacts.push('W: '+S.web);
-    if(S.address)contacts.push('A: '+S.address);
+    if(S.phone)contacts.push({p:'Tel:',v:S.phone});
+    if(S.email)contacts.push({p:'E-mail:',v:S.email});
+    if(S.web)contacts.push({p:'Web:',v:S.web});
+    if(S.address)contacts.push({p:'Cim:',v:S.address});
 
     contacts.forEach((c,i)=>{
-      const prefix=c.substring(0,2);
-      const rest=c.substring(2);
       const y=startY+i*3.5;
-
       doc.setFont(font,'bold');
       textCMYK(doc,S.accentColor);
-      doc.text(prefix,x,y);
-
-      const pw=doc.getTextWidth(prefix);
+      doc.text(c.p,x,y);
+      const pw=doc.getTextWidth(c.p);
       doc.setFont(font,'normal');
       textCMYK(doc,S.textColor);
-      doc.text(rest,x+pw+0.3,y);
+      doc.text(c.v,x+pw+0.8,y);
     });
   }
 
   function drawContactsCentered(doc,cx,startY,font){
     const contacts=[];
-    if(S.phone)contacts.push('T: '+S.phone);
-    if(S.email)contacts.push('E: '+S.email);
-    if(S.web)contacts.push('W: '+S.web);
-    if(S.address)contacts.push('A: '+S.address);
+    if(S.phone)contacts.push('Tel: '+S.phone);
+    if(S.email)contacts.push('E-mail: '+S.email);
+    if(S.web)contacts.push('Web: '+S.web);
+    if(S.address)contacts.push('Cim: '+S.address);
 
     contacts.forEach((c,i)=>{
       doc.setFont(font,'normal');
