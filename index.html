@@ -1848,34 +1848,67 @@
     }
   }
 
-  function processPayment(){
+  async function processPayment(){
     const nextBtn=document.getElementById('fn-next');
     nextBtn.disabled=true;
     nextBtn.textContent='Feldolgozás...';
 
-    // Simulate payment processing
-    setTimeout(()=>{
+    const lname=document.getElementById('fn-lname').value.trim();
+    const fname=document.getElementById('fn-fname').value.trim();
+    const email=document.getElementById('fn-email').value.trim();
+    const phone=document.getElementById('fn-phone').value.trim();
+    const company=document.getElementById('fn-company').value.trim();
+    const taxid=document.getElementById('fn-taxid').value.trim();
+    const addr=document.getElementById('fn-addr').value.trim();
+    const zip=document.getElementById('fn-zip').value.trim();
+    const city=document.getElementById('fn-city').value.trim();
+
+    const payload={
+      billingLastName:lname, billingFirstName:fname,
+      billingEmail:email, billingPhone:phone,
+      billingCompany:company||null, billingTaxId:taxid||null,
+      shippingAddress:addr, shippingZip:zip, shippingCity:city,
+      quantity:orderQty,
+      unitPriceHuf:Math.round(orderPrice/orderQty),
+      totalAmountHuf:orderPrice,
+      cardName:S.name||'', cardTitle:S.title||null, cardCompany:S.company||null,
+      cardPhone:S.phone||null, cardEmail:S.email||null,
+      cardWeb:S.web||null, cardAddress:S.address||null,
+      cardDesign:{
+        layout:S.layout, font:S.font,
+        colors:{bg:S.bgColor,text:S.textColor,accent:S.accentColor,bg2:S.bgColor2},
+        bgStyle:S.bgStyle, logoPosition:S.logoPos,
+        logoSize:S.logoSize, radius:S.radius, shadow:S.shadow
+      },
+      logoUrl:null,
+    };
+
+    try{
+      const resp=await fetch('/api/orders',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload),
+      });
+      if(!resp.ok) throw new Error('Szerver hiba: '+resp.status);
+      const data=await resp.json();
+      fillSuccess(data.order_number,lname,fname,addr,zip,city);
+    }catch(err){
+      console.error(err);
+      alert('A rendelés mentése sikertelen. Kérjük próbálja újra.');
+    }finally{
       nextBtn.disabled=false;
-      funnelStep=4;
-      updateFunnelUI();
-      fillSuccess();
-    },2000);
+      nextBtn.textContent='Tovább →';
+    }
   }
 
-  function fillSuccess(){
-    const orderId='PC-'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).substring(2,5).toUpperCase();
-    const lname=document.getElementById('fn-lname').value;
-    const fname=document.getElementById('fn-fname').value;
-    const addr=document.getElementById('fn-addr').value;
-    const city=document.getElementById('fn-city').value;
-    const zip=document.getElementById('fn-zip').value;
-
-    // Delivery estimate: 3-5 business days from now
+  function fillSuccess(orderNumber,lname,fname,addr,zip,city){
     const d=new Date();
     d.setDate(d.getDate()+5);
     const delivery=d.toLocaleDateString('hu-HU',{year:'numeric',month:'long',day:'numeric'});
 
-    document.getElementById('suc-orderid').textContent=orderId;
+    funnelStep=4;
+    updateFunnelUI();
+    document.getElementById('suc-orderid').textContent=orderNumber;
     document.getElementById('suc-name').textContent=lname+' '+fname;
     document.getElementById('suc-addr').textContent=zip+' '+city+', '+addr;
     document.getElementById('suc-qty').textContent=formatPrice(orderQty)+' db';
